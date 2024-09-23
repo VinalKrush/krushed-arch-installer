@@ -13,12 +13,11 @@ mod drivers;
 
 use profiles::{ InstallProfile, install_profile };
 use ucode::{ InstallUcode, install_ucode };
-// use drivers::{InstallDriver, install_driver};
+use drivers::{ InstallDriver, install_driver };
 use ratatui::{ backend::CrosstermBackend, Terminal };
 use ratatui::widgets::{ List, ListItem, Block, Borders };
 use dialoguer::{ Password, Input, Confirm };
 use std::io::{ self, stdout };
-//use std::thread;
 
 struct InstallerState {
     selected_profile: i32,
@@ -367,10 +366,5 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     );
     chroot_command("grub-mkconfig -o /boot/grub/grub.cfg");
 
-    Ok(())
-}
-
-fn chroot_actions(state: &mut InstallerState) -> Result<(), io::Error> {
-    println!("Chroot Actions...");
     Ok(())
 }
