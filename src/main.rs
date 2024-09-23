@@ -12,7 +12,7 @@ mod ucode;
 mod drivers;
 
 use profiles::{ InstallProfile, install_profile };
-// use ucode::{InstallUcode, install_ucode};
+use ucode::{ InstallUcode, install_ucode };
 // use drivers::{InstallDriver, install_driver};
 use ratatui::{ backend::CrosstermBackend, Terminal };
 use ratatui::widgets::{ List, ListItem, Block, Borders };
@@ -48,7 +48,7 @@ fn chroot_command(_command: &str) {
         .arg("-c")
         .arg("arch-chroot /mnt {_command}")
         .output()
-        .expect("Failed to execute command");
+        .expect("Failed to execute chroot command");
 
     if !output.status.success() {
         println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
@@ -179,7 +179,8 @@ fn driver_selector(state: &mut InstallerState) -> Result<(), io::Error> {
         ListItem::new("1. AMD"),
         ListItem::new("2. NVIDIA"),
         ListItem::new("3. INTEL"),
-        ListItem::new("4. VMWARE")
+        ListItem::new("4. VMWARE"),
+        ListItem::new("5. No Driver")
     ];
 
     let driver_list = List::new(driver_choices_msg).block(Block::default().borders(Borders::ALL));
@@ -192,7 +193,7 @@ fn driver_selector(state: &mut InstallerState) -> Result<(), io::Error> {
     let selected_driver = Input::<i32>::new().interact_text().unwrap();
     terminal.clear()?;
 
-    if selected_driver >= 1 && selected_driver <= 4 {
+    if selected_driver >= 1 && selected_driver <= 5 {
         state.selected_driver = selected_driver;
         root_password(state)
     } else {
@@ -314,7 +315,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
     let mut chosen_profile;
-    // let mut chosen_ucode = InstallProfile::Base;
+    let mut chosen_ucode;
     // let mut chosen_driver = InstallProfile::Base;
     // let mut chosen_root_password = state.root_pass;
     // let mut chosen_username = state.username;
@@ -345,6 +346,26 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
             println!("A Weird Error Happened And I Didn't Remeber What Profile You Selected...");
         }
     }
+
+    match state.selected_ucode {
+        1 => {
+            chosen_ucode = InstallUcode::Intel;
+            install_ucode(chosen_ucode);
+        }
+        2 => {
+            chosen_ucode = InstallUcode::AMD;
+            install_ucode(chosen_ucode);
+        }
+        _ => {
+            println!("A Weird Error Happened And I Didn't Remeber What UCODE You Selected...");
+        }
+    }
+
+    // Installing Grub So If Install Fails Beyond  This Point, You Can Still Boot Into The Install.
+    chroot_command(
+        "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch-Linux"
+    );
+    chroot_command("grub-mkconfig -o /boot/grub/grub.cfg");
 
     Ok(())
 }
