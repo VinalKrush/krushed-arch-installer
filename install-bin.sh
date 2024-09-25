@@ -9,6 +9,7 @@ fi
 clear
 
 echo "NOTE: THIS SCRIPT IS UNTESTED. USE AT YOUR OWN RISK"
+echo "PRESS ENTER TO CONTINUE"
 read
 echo "Installing dependencies..."
 # Install Rust if not already installed
