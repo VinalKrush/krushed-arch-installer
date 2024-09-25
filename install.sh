@@ -6,8 +6,10 @@ if [ "$(id -u)" != "0" ]; then
   exit 1
 fi
 
+clear
+
 echo "NOTE: THIS SCRIPT IS UNTESTED. USE AT YOUR OWN RISK"
-READ
+read
 echo "Installing dependencies..."
 # Install Rust if not already installed
 if ! command -v rustc &> /dev/null; then
@@ -17,7 +19,7 @@ fi
 # Compile your Rust program
 cargo build --release
 mkdir /etc/krushed/arch-installer
-cp -f src/etc/* /etc/krushed/arch-installer/
+cp -r src/etc/* /etc/krushed/arch-installer/
 
 # Install the compiled binary
 install -Dm 755 target/release/krushed-arch-installer /usr/bin/krushed-arch-installer
