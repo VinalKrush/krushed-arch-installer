@@ -88,7 +88,6 @@ fn main() -> Result<(), io::Error> {
         println!(" Install... \nPlease set up your drives...");
         return Ok(());
     } else {
-        run_command("cp /etc/krushed/arch-installer/etc/pacman.conf /etc/pacman.conf");
         profile_selector(&mut state)?;
     }
     Ok(())
