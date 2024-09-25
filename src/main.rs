@@ -5,6 +5,13 @@ BEFORE JUDGING THIS CODE PLEASE KNOW I AM NEW TO RUST
 THIS WILL NOT BE THE BEST AND I KNOW IT CAN BE BETTER ;-;
 
 Also I'm using ListItem because idk how to use paragraph in ratatui
+
+FILES:
+/etc/krushed/arch-installer/
+/etc/krushed/arch-installer/etc/pacman.conf
+
+
+
 */
 
 mod profiles;
@@ -81,6 +88,7 @@ fn main() -> Result<(), io::Error> {
         println!(" Install... \nPlease set up your drives...");
         return Ok(());
     } else {
+        run_command("cp /etc/krushed/arch-installer/etc/pacman.conf /etc/pacman.conf");
         profile_selector(&mut state)?;
     }
     Ok(())
@@ -315,7 +323,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     terminal.clear()?;
     let mut chosen_profile;
     let mut chosen_ucode;
-    // let mut chosen_driver = InstallProfile::Base;
+    let mut chosen_driver;
     // let mut chosen_root_password = state.root_pass;
     // let mut chosen_username = state.username;
     // let mut chosen_user_password = state.user_pass;
@@ -365,6 +373,31 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch-Linux"
     );
     chroot_command("grub-mkconfig -o /boot/grub/grub.cfg");
+
+    match state.selected_driver {
+        1 => {
+            chosen_driver = InstallDriver::AMD;
+            install_driver(chosen_driver);
+        }
+        2 => {
+            chosen_driver = InstallDriver::NVIDIA;
+            install_driver(chosen_driver);
+        }
+        3 => {
+            chosen_driver = InstallDriver::INTEL;
+            install_driver(chosen_driver);
+        }
+        4 => {
+            chosen_driver = InstallDriver::VMWARE;
+            install_driver(chosen_driver);
+        }
+        _ => {
+            println!("A Weird Error Happened And I Didn't Remeber What Driver You Selected...");
+        }
+    }
+
+    chroot_command(format!("echo useradd -m -G wheel {}", state.username).as_str());
+    chroot_command(format!("echo {}:{} | chpasswd", state.username, state.user_pass).as_str());
 
     Ok(())
 }
