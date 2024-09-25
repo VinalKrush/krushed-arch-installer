@@ -14,13 +14,12 @@ echo "Installing dependencies..."
 # Install Rust if not already installed
 if ! command -v rustc &> /dev/null; then
   pacman -S rustup
-  rustup default stable
 fi
+rustup default stable
 
 # Compile your Rust program
-cargo build --release
 mkdir -p /etc/krushed/arch-installer
 cp -r src/etc/* /etc/krushed/arch-installer/
 
 # Install the compiled binary
-install -Dm 755 target/release/krushed-arch-installer /usr/bin/krushed-arch-installer
+install -Dm 755 bin/krushed-arch-installer /usr/bin/krushed-arch-installer
