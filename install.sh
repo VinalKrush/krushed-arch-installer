@@ -13,7 +13,7 @@ read
 echo "Installing dependencies..."
 # Install Rust if not already installed
 if ! command -v rustc &> /dev/null; then
-  pacman -S rust
+  pacman -S rustup
 fi
 
 # Compile your Rust program
