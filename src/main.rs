@@ -52,7 +52,7 @@ fn chroot_command(_command: &str) {
     use std::process::Command;
     let output = Command::new("sh")
         .arg("-c")
-        .arg("arch-chroot /mnt {_command}")
+        .arg(format!("arch-chroot /mnt {}", _command))
         .output()
         .expect("Failed to execute chroot command");
 
