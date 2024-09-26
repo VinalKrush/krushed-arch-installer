@@ -1,6 +1,0 @@
-# THIS INSTALLER IS STILL A WORK IN PROGRESS
-### It has not been optimized, and it may not work as expected.
-___
-# TO-DO
-1. ADD A PROPER TUI...
-2. Make The Code Actually Readable...
