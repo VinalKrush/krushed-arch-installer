@@ -439,7 +439,10 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     // Installing Grub So If Install Fails Beyond  This Point, You Can Still Boot Into The Install.
     println!("Setting Up Grub...");
     chroot_command(
-        "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch-Linux"
+        format!(
+            "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id={0}-Arch-Linux",
+            state.hostname
+        ).as_str()
     );
     chroot_command("grub-mkconfig -o /boot/grub/grub.cfg");
 
