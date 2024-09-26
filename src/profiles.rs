@@ -143,24 +143,64 @@ fn run_command(command: &str) {
 pub fn install_profile(profile: InstallProfile) {
     match profile {
         InstallProfile::Base => {
+            println!("INSTALLING BASE PROFILE");
+            println!("");
+            println!("THIS MAY TAKE SOME TIME...");
+            println!("");
+            println!("");
+            println!("");
+            println!("");
+            println!("");
             base_profile();
         }
         InstallProfile::Minimal => {
+            println!("INSTALLING MINIMAL PROFILE");
+            println!("");
+            println!("THIS MAY TAKE SOME TIME...");
+            println!("");
+            println!("");
+            println!("");
+            println!("");
+            println!("");
             base_profile();
             minimal_profile();
         }
         InstallProfile::Desktop => {
+            println!("INSTALLING DESKTOP PROFILE");
+            println!("");
+            println!("THIS MAY TAKE SOME TIME...");
+            println!("");
+            println!("");
+            println!("");
+            println!("");
+            println!("");
             base_profile();
             minimal_profile();
             desktop_profile();
         }
         InstallProfile::FullDesktop => {
+            println!("INSTALLING FULL DESKTOP PROFILE");
+            println!("");
+            println!("THIS MAY TAKE SOME TIME...");
+            println!("");
+            println!("");
+            println!("");
+            println!("");
+            println!("");
             base_profile();
             minimal_profile();
             desktop_profile();
             full_desktop_profile();
         }
         InstallProfile::Gaming => {
+            println!("INSTALLING GAMING PROFILE");
+            println!("");
+            println!("THIS MAY TAKE SOME TIME...");
+            println!("");
+            println!("");
+            println!("");
+            println!("");
+            println!("");
             base_profile();
             minimal_profile();
             desktop_profile();
