@@ -403,6 +403,10 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
             chosen_driver = InstallDriver::VMWARE;
             install_driver(chosen_driver);
         }
+        5 => {
+            chosen_driver = InstallDriver::NONE;
+            install_driver(chosen_driver);
+        }
         _ => {
             println!("A Weird Error Happened And I Didn't Remeber What Driver You Selected...");
         }
