@@ -300,7 +300,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
 
     // If user should be an admin
     terminal.clear()?;
-    let user_admin = Confirm::new()
+    let admin = Confirm::new()
         .with_prompt(format!("Should {} be an admin?", username).as_str())
         .default(true)
         .interact()
