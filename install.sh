@@ -25,5 +25,4 @@ cp /etc/krushed/arch-installer/etc/pacman.conf /etc/pacman.conf
 install -Dm 755 bin/krushed-arch-installer /usr/bin/krushed-arch-installer
 
 echo "INSTALLED!"
-echo ""
 krushed-arch-installer
