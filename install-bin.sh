@@ -19,3 +19,7 @@ cp /etc/krushed/arch-installer/etc/pacman.conf /etc/pacman.conf
 
 # Install the compiled binary
 install -Dm 755 bin/krushed-arch-installer /usr/bin/krushed-arch-installer
+
+echo "INSTALLED!"
+echo ""
+echo "RUN  krushed-arch-installer TO START THE INSTALLER"

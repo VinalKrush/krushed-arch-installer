@@ -171,53 +171,12 @@ pub fn install_profile(profile: InstallProfile) {
 }
 
 fn base_profile() {
-    // Create a GTK text box
-    let text_box = gtk::TextView::new();
-    text_box.set_editable(false);
-    text_box.set_cursor_visible(false);
-    text_box.set_text("Installing Base Packages...");
-
-    // Create an indicatif progress bar
-    let pb = ProgressBar::new(100);
-    pb.set_style(
-        ProgressStyle::default_bar().template("{msg} [{bar:40}] {percent}%").progress_chars("##-")
+    //Base Install
+    println!("Installing Base Packages...");
+    run_command(
+        "pacstrap -K -P /mnt base base-devel linux linux-firmware linux-headers grub efibootmgr openssh networkmanager vim git"
     );
-
-    // Run the pacstrap command and update the progress bar
-    let command =
-        "pacstrap -K -P /mnt base base-devel linux linux-firmware linux-headers grub efibootmgr openssh networkmanager vim git";
-    let output = Command::new("sh")
-        .arg("-c")
-        .arg(command)
-        .stdout(std::process::Stdio::piped())
-        .spawn()
-        .expect("Failed to execute command");
-
-    let mut total_bytes = 0;
-    let mut bytes_read = 0;
-    while let Some(line) = output.stdout.lines().next() {
-        let line = line.expect("Failed to read line");
-        total_bytes += line.len() as u64;
-        bytes_read += line.len() as u64;
-        pb.set_position(bytes_read);
-        pb.set_message(&format!("Installing Base Packages... ({})", bytes_read));
-        text_box.set_text(&format!("Installing Base Packages... ({})", bytes_read));
-        while gtk::events_pending() {
-            gtk::main_iteration();
-        }
-    }
-
-    // Update the text box with the final message
-    text_box.set_text("Base packages installed!");
 }
-
-// fn base_profile() {
-//     //Base Install
-//     println!("Installing Base Packages...");
-//     run_command(
-//         "pacstrap -K -P /mnt base base-devel linux linux-firmware linux-headers grub efibootmgr openssh networkmanager vim git"
-//     );
-// }
 
 fn minimal_profile() {
     //Minimal Install

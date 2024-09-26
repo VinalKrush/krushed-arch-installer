@@ -395,8 +395,9 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         }
     }
 
-    chroot_command(format!("echo useradd -m -G wheel {}", state.username).as_str());
-    chroot_command(format!("echo {}:{} | chpasswd", state.username, state.user_pass).as_str());
+    chroot_command(format!("useradd -m -G wheel {}", state.username).as_str());
+    chroot_command(format!("{}:{} | chpasswd", state.username, state.user_pass).as_str());
+    chroot_command(format!("root:{}  | chpasswd", state.root_pass).as_str());
 
     Ok(())
 }
