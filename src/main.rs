@@ -440,7 +440,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
             use std::process::Command;
             let output = Command::new("sh")
                 .arg("-c")
-                .arg(format!("arch-chroot /mnt su {} {}", state.username, _acommand))
+                .arg(format!("arch-chroot /mnt su {} -c \"{}\"", state.username, _acommand))
                 .output()
                 .expect("Failed to execute chroot command");
 
