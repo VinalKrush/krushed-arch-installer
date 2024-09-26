@@ -23,7 +23,7 @@ fn chroot_command(_command: &str) {
     use std::process::Command;
     let output = Command::new("sh")
         .arg("-c")
-        .arg("arch-chroot /mnt {_command}")
+        .arg(format!("arch-chroot /mnt {}", _command))
         .output()
         .expect("Failed to execute chroot command");
 
@@ -47,7 +47,7 @@ pub fn install_driver(drivers: InstallDriver) {
             run_command(
                 "pacstrap -K -P /mnt nvidia-dkms nvidia-utils lib32-nvidia-utils libva-mesa-driver mesa-vdpau libva-nvidia-driver"
             );
-            chroot_command("echo systemctl enable nvidia-resume.service");
+            chroot_command("systemctl enable nvidia-resume.service");
         }
         InstallDriver::INTEL => {
             // INTEL Drivers Install
@@ -60,7 +60,7 @@ pub fn install_driver(drivers: InstallDriver) {
             // VMWARE Drivers Install
             println!("Installing VMWARE Drivers...");
             run_command("pacstrap -K -P /mnt open-vm-tools net-tools devtools");
-            chroot_command("echo systemctl enable vmtoolsd.service vmware-vmblock-fuse.service");
+            chroot_command("systemctl enable vmtoolsd.service vmware-vmblock-fuse.service");
         }
         InstallDriver::NONE => { println!("No Display Drivers Selected.") }
     }
