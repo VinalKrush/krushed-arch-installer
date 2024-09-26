@@ -386,13 +386,6 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         }
     }
 
-    // Installing Grub So If Install Fails Beyond  This Point, You Can Still Boot Into The Install.
-    println!("Installing Grub...");
-    chroot_command(
-        "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch-Linux"
-    );
-    chroot_command("grub-mkconfig -o /boot/grub/grub.cfg");
-
     match state.selected_driver {
         1 => {
             chosen_driver = InstallDriver::AMD;
@@ -415,6 +408,24 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         }
     }
 
+    terminal.clear()?;
+
+    println!("SETTING UP SYSTEM");
+    println!("");
+    println!("");
+    println!("");
+    println!("");
+    println!("");
+    println!("");
+    println!("");
+
+    // Installing Grub So If Install Fails Beyond  This Point, You Can Still Boot Into The Install.
+    println!("Setting Up Grub...");
+    chroot_command(
+        "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch-Linux"
+    );
+    chroot_command("grub-mkconfig -o /boot/grub/grub.cfg");
+
     println!("Setting Host Name...");
     //Using shell command because idk how to write to files in rust yet
     chroot_command(format!("echo \"{}\" > /etc/hostname", state.hostname).as_str());
@@ -434,8 +445,26 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         format!("chown -R {}:{} /home/{}", state.username, state.username, state.username).as_str()
     );
 
+    println!("Setting Passwords...");
     chroot_command(format!("{}:{} | chpasswd", state.username, state.user_pass).as_str());
     chroot_command(format!("root:{}  | chpasswd", state.root_pass).as_str());
+
+    terminal.clear()?;
+
+    println!("KRUSHED ARCH INSTALLER IS NOW DONE");
+    let restart_confirmation = Confirm::new()
+        .with_prompt("DO YOU WANT TO RESTART?")
+        .default(true)
+        .interact()
+        .unwrap();
+
+    if !restart_confirmation {
+        terminal.clear()?;
+        println!("Krushed Arch Installer Complete!");
+        return Ok(());
+    } else {
+        run_command("reboot");
+    }
 
     Ok(())
 }

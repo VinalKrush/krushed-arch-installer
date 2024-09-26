@@ -36,14 +36,14 @@ pub fn install_driver(drivers: InstallDriver) {
     match drivers {
         InstallDriver::AMD => {
             // AMD Drivers Install
-            println!("Installing AMD Drivers...");
+            println!("Downloading AMD Drivers...");
             run_command(
                 "pacstrap -K -P /mnt mesa lib32-mesa xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau"
             );
         }
         InstallDriver::NVIDIA => {
             // NVIDIA Drivers Install
-            println!("Installing NVIDIA Drivers...");
+            println!("Downloading NVIDIA Drivers...");
             run_command(
                 "pacstrap -K -P /mnt nvidia-dkms nvidia-utils lib32-nvidia-utils libva-mesa-driver mesa-vdpau libva-nvidia-driver"
             );
@@ -51,14 +51,14 @@ pub fn install_driver(drivers: InstallDriver) {
         }
         InstallDriver::INTEL => {
             // INTEL Drivers Install
-            println!("Installing INTEL Drivers...");
+            println!("Downloanding INTEL Drivers...");
             run_command(
                 "pacstrap -K -P /mnt mesa lib32-mesa xf86-video-intel vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver"
             );
         }
         InstallDriver::VMWARE => {
             // VMWARE Drivers Install
-            println!("Installing VMWARE Drivers...");
+            println!("Downloading VMWARE Drivers...");
             run_command("pacstrap -K -P /mnt open-vm-tools net-tools devtools");
             chroot_command("systemctl enable vmtoolsd.service vmware-vmblock-fuse.service");
         }

@@ -20,12 +20,12 @@ pub fn install_ucode(ucode: InstallUcode) {
     match ucode {
         InstallUcode::Intel => {
             // Intel Ucode Install
-            println!("Installing Intel UCODE...");
+            println!("Downloading Intel UCODE...");
             run_command("pacstrap -K -P /mnt intel-ucode");
         }
         InstallUcode::AMD => {
             // AMD Ucode Install
-            println!("Installing AMD UCODE...");
+            println!("Downloading AMD UCODE...");
             run_command("pacstrap -K -P /mnt amd-ucode");
         }
     }
