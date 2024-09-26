@@ -122,6 +122,7 @@ use indicatif::{ ProgressBar, ProgressStyle };
 use std::process::Command;
 use std::io::stdout;
 use std::io::BufReader;
+use std::io::BufRead;
 pub enum InstallProfile {
     Base,
     Minimal,
