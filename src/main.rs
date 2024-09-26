@@ -294,7 +294,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
     terminal.clear()?;
     let password = Password::new()
         .with_prompt("Enter Password:")
-        .with_confirm(true)
+        .with_confirmation("Confirm Password", "Passwords Do Not Match.")
         .interact()
         .unwrap();
 
@@ -453,8 +453,8 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     println!("Generating initramfs...");
     chroot_command("mkinitcpio -P");
 
-    println!("Making User Account...");
-
+    // User Creation
+    terminal.clear()?;
     let new_user_msg = Confirm::new()
         .with_prompt("Would You Like To Create A New User?")
         .default(true)
