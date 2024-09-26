@@ -209,85 +209,87 @@ fn driver_selector(state: &mut InstallerState) -> Result<(), io::Error> {
     }
 }
 
-fn root_password(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
+// Disabling Root Passwords and User Account Creation because it breaks it idk why
 
-    // UCODE SELECT
-    let root_choices_msg = vec![ListItem::new("Please Set A Root Password\n\n ")];
+// fn root_password(state: &mut InstallerState) -> Result<(), io::Error> {
+//     let backend = CrosstermBackend::new(stdout());
+//     let mut terminal = Terminal::new(backend)?;
+//     terminal.clear()?;
 
-    let root_list = List::new(root_choices_msg).block(Block::default().borders(Borders::ALL));
+//     // UCODE SELECT
+//     let root_choices_msg = vec![ListItem::new("Please Set A Root Password\n\n ")];
 
-    terminal.draw(|frame| {
-        let size = frame.area();
-        frame.render_widget(root_list, size);
-    })?;
+//     let root_list = List::new(root_choices_msg).block(Block::default().borders(Borders::ALL));
 
-    let root_pass = Password::new()
-        .with_confirmation("Confirm Password", "Passwords Do Not Match")
-        .interact()
-        .unwrap();
-    terminal.clear()?;
+//     terminal.draw(|frame| {
+//         let size = frame.area();
+//         frame.render_widget(root_list, size);
+//     })?;
 
-    state.root_pass = root_pass;
-    user_name(state)?;
+//     let root_pass = Password::new()
+//         .with_confirmation("Confirm Password", "Passwords Do Not Match")
+//         .interact()
+//         .unwrap();
+//     terminal.clear()?;
 
-    Ok(())
-}
+//     state.root_pass = root_pass;
+//     user_name(state)?;
 
-fn user_name(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
+//     Ok(())
+// }
 
-    // UCODE SELECT
-    let user_choices_msg = vec![
-        ListItem::new("Please Type A Username\n\n "),
-        ListItem::new("Note This User Will Be Added To The \"Wheel\" Group")
-    ];
+// fn user_name(state: &mut InstallerState) -> Result<(), io::Error> {
+//     let backend = CrosstermBackend::new(stdout());
+//     let mut terminal = Terminal::new(backend)?;
+//     terminal.clear()?;
 
-    let user_list = List::new(user_choices_msg).block(Block::default().borders(Borders::ALL));
+//     // UCODE SELECT
+//     let user_choices_msg = vec![
+//         ListItem::new("Please Type A Username\n\n "),
+//         ListItem::new("Note This User Will Be Added To The \"Wheel\" Group")
+//     ];
 
-    terminal.draw(|frame| {
-        let size = frame.area();
-        frame.render_widget(user_list, size);
-    })?;
+//     let user_list = List::new(user_choices_msg).block(Block::default().borders(Borders::ALL));
 
-    let user_na = Input::new().interact().unwrap();
-    terminal.clear()?;
+//     terminal.draw(|frame| {
+//         let size = frame.area();
+//         frame.render_widget(user_list, size);
+//     })?;
 
-    state.username = user_na;
-    user_password(state)?;
+//     let user_na = Input::new().interact().unwrap();
+//     terminal.clear()?;
 
-    Ok(())
-}
+//     state.username = user_na;
+//     user_password(state)?;
 
-fn user_password(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
+//     Ok(())
+// }
 
-    // UCODE SELECT
-    let user_choices_msg = vec![ListItem::new("Please Set A User Password")];
+// fn user_password(state: &mut InstallerState) -> Result<(), io::Error> {
+//     let backend = CrosstermBackend::new(stdout());
+//     let mut terminal = Terminal::new(backend)?;
+//     terminal.clear()?;
 
-    let user_list = List::new(user_choices_msg).block(Block::default().borders(Borders::ALL));
+//     // UCODE SELECT
+//     let user_choices_msg = vec![ListItem::new("Please Set A User Password")];
 
-    terminal.draw(|frame| {
-        let size = frame.area();
-        frame.render_widget(user_list, size);
-    })?;
+//     let user_list = List::new(user_choices_msg).block(Block::default().borders(Borders::ALL));
 
-    let user_pass = Password::new()
-        .with_confirmation("Confirm Password", "Passwords Do Not Match")
-        .interact()
-        .unwrap();
-    terminal.clear()?;
+//     terminal.draw(|frame| {
+//         let size = frame.area();
+//         frame.render_widget(user_list, size);
+//     })?;
 
-    state.user_pass = user_pass;
-    host_name(state)?;
-    Ok(())
-}
+//     let user_pass = Password::new()
+//         .with_confirmation("Confirm Password", "Passwords Do Not Match")
+//         .interact()
+//         .unwrap();
+//     terminal.clear()?;
+
+//     state.user_pass = user_pass;
+//     host_name(state)?;
+//     Ok(())
+// }
 
 fn host_name(state: &mut InstallerState) -> Result<(), io::Error> {
     let backend = CrosstermBackend::new(stdout());
@@ -442,16 +444,18 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     println!("Generating initramfs...");
     chroot_command("mkinitcpio -P");
 
-    println!("Making User Account...");
-    chroot_command(format!("mkdir /home/{0}", state.username).as_str());
-    chroot_command(format!("useradd -m -G wheel {0}", state.username).as_str());
-    chroot_command(format!("chown -R {0}:{0} /home/{0}", state.username).as_str());
+    // Disable account creation and root password changing
 
-    println!("Setting Passwords...");
-    chroot_command(
-        format!("echo '{0}:{1}' | sudo chpasswd", state.username, state.user_pass).as_str()
-    );
-    chroot_command(format!("echo 'root:{0}'  | sudo chpasswd", state.root_pass).as_str());
+    // println!("Making User Account...");
+    // chroot_command(format!("mkdir /home/{0}", state.username).as_str());
+    // chroot_command(format!("useradd -m -G wheel {}", state.username).as_str());
+    // chroot_command(format!("chown -R {0}:{0} /home/{0}", state.username).as_str());
+
+    // println!("Setting Passwords...");
+    // chroot_command(
+    //     format!("echo '{0}:{1}' | sudo chpasswd", state.username, state.user_pass).as_str()
+    // );
+    // chroot_command(format!("echo 'root:{0}' | sudo chpasswd", state.root_pass).as_str());
 
     terminal.clear()?;
 
