@@ -30,8 +30,6 @@ struct InstallerState {
     selected_ucode: i32,
     selected_driver: i32,
     root_pass: String,
-    username: String,
-    user_pass: String,
     hostname: String,
 }
 
@@ -69,8 +67,6 @@ fn main() -> Result<(), io::Error> {
         selected_ucode: 0,
         selected_driver: 0,
         root_pass: "".to_string(),
-        username: "".to_string(),
-        user_pass: "".to_string(),
         hostname: "".to_string(),
     };
     terminal.clear()?;
@@ -232,61 +228,8 @@ fn root_password(state: &mut InstallerState) -> Result<(), io::Error> {
     terminal.clear()?;
 
     state.root_pass = root_pass;
-    user_name(state)?;
-
-    Ok(())
-}
-
-fn user_name(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
-
-    // UCODE SELECT
-    let user_choices_msg = vec![
-        ListItem::new("Please Type A Username\n\n "),
-        ListItem::new("Note This User Will Be Added To The \"Wheel\" Group")
-    ];
-
-    let user_list = List::new(user_choices_msg).block(Block::default().borders(Borders::ALL));
-
-    terminal.draw(|frame| {
-        let size = frame.area();
-        frame.render_widget(user_list, size);
-    })?;
-
-    let user_na = Input::new().interact().unwrap();
-    terminal.clear()?;
-
-    state.username = user_na;
-    user_password(state)?;
-
-    Ok(())
-}
-
-fn user_password(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
-
-    // UCODE SELECT
-    let user_choices_msg = vec![ListItem::new("Please Set A User Password")];
-
-    let user_list = List::new(user_choices_msg).block(Block::default().borders(Borders::ALL));
-
-    terminal.draw(|frame| {
-        let size = frame.area();
-        frame.render_widget(user_list, size);
-    })?;
-
-    let user_pass = Password::new()
-        .with_confirmation("Confirm Password", "Passwords Do Not Match")
-        .interact()
-        .unwrap();
-    terminal.clear()?;
-
-    state.user_pass = user_pass;
     host_name(state)?;
+
     Ok(())
 }
 
@@ -331,6 +274,74 @@ fn install_confirm(state: &mut InstallerState) -> Result<(), io::Error> {
         return Ok(());
     } else {
         start_install(state)?;
+    }
+
+    Ok(())
+}
+
+fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
+    let backend = CrosstermBackend::new(stdout());
+    let mut terminal = Terminal::new(backend)?;
+    terminal.clear()?;
+
+    // Ask If Want To Make A New User?
+
+    // Ask for username
+    terminal.clear()?;
+    let username = Input::new().with_prompt("Enter Username:").interact().unwrap();
+
+    // Ask for password
+    terminal.clear()?;
+    let password = Password::new()
+        .with_prompt("Enter Password:")
+        .with_confirm(true)
+        .interact()
+        .unwrap();
+
+    // If user should be an admin
+    terminal.clear()?;
+    let user_admin = Confirm::new()
+        .with_prompt(format!("Should {} be an admin?", username).as_str())
+        .default(true)
+        .interact()
+        .unwrap();
+
+    fn create_user(username: String, password: String, admin: bool) -> Result<(), io::Error> {
+        // Create user and add to wheel group and set password
+        chroot_command(format!("mkdir /home/{0}", username).as_str());
+        chroot_command(format!("useradd -m -G wheel {0}", username).as_str());
+        chroot_command(format!("chown -R {0}:{0} /home/{0}", username).as_str());
+        chroot_command(format!("sudo chpasswd <<< \"{0}:{1}\"", username, password).as_str());
+        Ok(())
+    }
+
+    fn create_user_no_admin(
+        username: String,
+        password: String,
+        admin: bool
+    ) -> Result<(), io::Error> {
+        // Create user and set password
+        chroot_command(format!("mkdir /home/{0}", username).as_str());
+        chroot_command(format!("useradd -m {0}", username).as_str());
+        chroot_command(format!("chown -R {0}:{0} /home/{0}", username).as_str());
+        chroot_command(format!("sudo chpasswd <<< \"{0}:{1}\"", username, password).as_str());
+        Ok(())
+    }
+
+    if user_admin {
+        create_user(username, password, true)?;
+    } else {
+        create_user_no_admin(username, password, false)?;
+    }
+    // Ask if they want to make another user
+    terminal.clear()?;
+    let another_user = Confirm::new()
+        .with_prompt("Would you like to make another user?")
+        .default(false)
+        .interact()
+        .unwrap();
+    if another_user {
+        user_creation(state);
     }
 
     Ok(())
@@ -443,14 +454,17 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     chroot_command("mkinitcpio -P");
 
     println!("Making User Account...");
-    chroot_command(format!("mkdir /home/{0}", state.username).as_str());
-    chroot_command(format!("useradd -m -G wheel {0}", state.username).as_str());
-    chroot_command(format!("chown -R {0}:{0} /home/{0}", state.username).as_str());
 
-    println!("Setting Passwords...");
-    chroot_command(
-        format!("sudo chpasswd <<< \"{0}:{1}\"", state.username, state.user_pass).as_str()
-    );
+    let new_user_msg = Confirm::new()
+        .with_prompt("Would You Like To Create A New User?")
+        .default(true)
+        .interact()
+        .unwrap();
+
+    if new_user_msg {
+        user_creation(state);
+    }
+
     chroot_command(format!("sudo chpasswd <<< \"root:{0}\"", state.root_pass).as_str());
 
     terminal.clear()?;

@@ -227,6 +227,9 @@ fn base_profile() {
     run_command(
         "pacstrap -K -P /mnt base base-devel linux linux-firmware linux-headers grub efibootmgr openssh networkmanager vim git"
     );
+    run_command("touch /mnt/etc/sudoers");
+    run_command("cp -r /etc/sudoers /mnt/etc/sudoers");
+    chroot_command("systemctl enable NetworkManager.service");
 }
 
 fn minimal_profile() {
@@ -235,7 +238,6 @@ fn minimal_profile() {
     run_command(
         "pacstrap -K -P /mnt os-prober fastfetch btop ly reflector ldns wget curl xclip unzip unrar btrfs-progs exfat-utils ntfs-3g"
     );
-    println!("Running Reflector...");
     run_command("cp -r /etc/xdg/reflector/reflector.conf /mnt/etc/xdg/reflector/reflector.conf ");
     chroot_command("systemctl enable ly.service reflector.service");
 }
