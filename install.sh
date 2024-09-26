@@ -14,9 +14,9 @@ read
 
 # Compile your Rust program
 mkdir -p /etc/krushed/arch-installer/etc
-mkdir -p /etc/krushed/arch-installer/user
+mkdir -p /etc/krushed/arch-installer/usr-config
 cp -r etc/* /etc/krushed/arch-installer/etc/
-cp -r user/* /etc/krushed/arch-installer/user/
+cp -r usr-config/* /etc/krushed/arch-installer/usr-config/
 cp /etc/krushed/arch-installer/etc/pacman.conf /etc/pacman.conf
 
 # Install the compiled binary
