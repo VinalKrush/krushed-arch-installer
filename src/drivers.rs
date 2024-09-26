@@ -62,6 +62,9 @@ pub fn install_driver(drivers: InstallDriver) {
             run_command("pacstrap -K -P /mnt open-vm-tools net-tools devtools");
             chroot_command("systemctl enable vmtoolsd.service vmware-vmblock-fuse.service");
         }
-        InstallDriver::NONE => { println!("No Display Drivers Selected.") }
+        InstallDriver::NONE => {
+            // No Drivers.
+            println!("No Display Drivers Selected.")
+        }
     }
 }

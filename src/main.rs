@@ -25,9 +25,6 @@ use ratatui::{ backend::CrosstermBackend, Terminal };
 use ratatui::widgets::{ List, ListItem, Block, Borders };
 use dialoguer::{ Password, Input, Confirm };
 use std::io::{ self, stdout };
-use std::fs::File;
-use std::io::prelude::*;
-
 struct InstallerState {
     selected_profile: i32,
     selected_ucode: i32,
