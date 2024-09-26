@@ -437,9 +437,8 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     chroot_command(
         format!("chown -R {}:{} /home/{}", state.username, state.username, state.username).as_str()
     );
-    chroot_command(format!("{}:{} | chpasswd", state.username, state.user_pass).as_str());
-    chroot_command(format!("root:{}  | chpasswd", state.root_pass).as_str());
 
+    // This must be done before the passwords are set
     if state.selected_profile >= 4 {
         fn user_su_command(_acommand: &str) {
             use std::process::Command;
@@ -468,7 +467,22 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         user_su_command(
             "git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
         );
+
+        run_command(
+            format!(
+                "cp -r /etc/krushed/arch-installer/user/.zshrc /mnt/home/{}/.zshrc",
+                state.username
+            ).as_str()
+        );
+
+        println!("Installing Yay Package Manager...");
+        user_su_command(
+            "git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si && cd .. && sudo rm -rf yay"
+        );
     }
+
+    chroot_command(format!("{}:{} | chpasswd", state.username, state.user_pass).as_str());
+    chroot_command(format!("root:{}  | chpasswd", state.root_pass).as_str());
 
     Ok(())
 }
