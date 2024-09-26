@@ -25,6 +25,8 @@ use ratatui::{ backend::CrosstermBackend, Terminal };
 use ratatui::widgets::{ List, ListItem, Block, Borders };
 use dialoguer::{ Password, Input, Confirm };
 use std::io::{ self, stdout };
+use std::fs::File;
+use std::io::prelude::*;
 
 struct InstallerState {
     selected_profile: i32,
@@ -33,6 +35,7 @@ struct InstallerState {
     root_pass: String,
     username: String,
     user_pass: String,
+    hostname: String,
 }
 
 fn run_command(command: &str) {
@@ -71,6 +74,7 @@ fn main() -> Result<(), io::Error> {
         root_pass: "".to_string(),
         username: "".to_string(),
         user_pass: "".to_string(),
+        hostname: "".to_string(),
     };
     terminal.clear()?;
 
@@ -284,13 +288,31 @@ fn user_password(state: &mut InstallerState) -> Result<(), io::Error> {
     terminal.clear()?;
 
     state.user_pass = user_pass;
-    println!("UCODE: {0}", state.selected_ucode);
-    println!("PROFILE: {0}", state.selected_profile);
-    println!("DRIVER: {0}", state.selected_driver);
-    println!("ROOT PASSWORD: {}", state.root_pass);
-    println!("USERNAME: {}", state.username);
-    println!("USER PASS: {}", state.user_pass);
+    host_name(state)?;
+    Ok(())
+}
+
+fn host_name(state: &mut InstallerState) -> Result<(), io::Error> {
+    let backend = CrosstermBackend::new(stdout());
+    let mut terminal = Terminal::new(backend)?;
+    terminal.clear()?;
+
+    // UCODE SELECT
+    let host_name_msg = vec![ListItem::new("Please Type A Hostname\n\n ")];
+
+    let host_list = List::new(host_name_msg).block(Block::default().borders(Borders::ALL));
+
+    terminal.draw(|frame| {
+        let size = frame.area();
+        frame.render_widget(host_list, size);
+    })?;
+
+    let host_na = Input::new().interact().unwrap();
+    terminal.clear()?;
+
+    state.hostname = user_na;
     install_confirm(state)?;
+
     Ok(())
 }
 
@@ -368,6 +390,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     }
 
     // Installing Grub So If Install Fails Beyond  This Point, You Can Still Boot Into The Install.
+    println!("Installing Grub...");
     chroot_command(
         "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=Arch-Linux"
     );
@@ -395,9 +418,57 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         }
     }
 
+    println!("Setting Host Name...");
+    let mut hostname_file = File::create("hostname")?;
+    file.write_all(format!("{}", state.hostname));
+    run_command("mv ./hostname /mnt/etc/hostname");
+
+    run_command("ln -s /usr/bin/vim /usr/bin/vi");
+
+    println!("Generating Locale...");
+    run_command("locale-gen");
+
+    println!("Generating initramfs...");
+    run_command("mkinitcpio -P");
+
+    println!("Making User Account...");
+    chroot_command(format!("mkdir /home/{}", state.username).as_str());
     chroot_command(format!("useradd -m -G wheel {}", state.username).as_str());
+    chroot_command(
+        format!("chown -R {}:{} /home/{}", state.username, state.username, state.username).as_str()
+    );
     chroot_command(format!("{}:{} | chpasswd", state.username, state.user_pass).as_str());
     chroot_command(format!("root:{}  | chpasswd", state.root_pass).as_str());
+
+    if state.selected_profile >= 4 {
+        fn user_su_command(_acommand: &str) {
+            use std::process::Command;
+            let output = Command::new("sh")
+                .arg("-c")
+                .arg(format!("arch-chroot /mnt su {} {}", state.username, _acommand))
+                .output()
+                .expect("Failed to execute chroot command");
+
+            if !output.status.success() {
+                println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
+            }
+        }
+        println!("Installing ZSH");
+        user_su_command("zsh");
+        user_su_command(
+            "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\""
+        );
+        user_su_command(
+            "git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
+        );
+        user_su_command(
+            "git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
+        );
+
+        user_su_command(
+            "git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+        );
+    }
 
     Ok(())
 }
