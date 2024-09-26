@@ -419,9 +419,8 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     }
 
     println!("Setting Host Name...");
-    let mut hostname_file = File::create("hostname")?;
-    file.write_all(format!("{}", state.hostname));
-    run_command("mv ./hostname /mnt/etc/hostname");
+    //Using shell command because idk how to write to files in rust yet
+    chroot_command(format!("echo \"{}\" > /etc/hostname", state.hostname).as_str());
 
     run_command("ln -s /usr/bin/vim /usr/bin/vi");
 
