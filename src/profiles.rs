@@ -246,7 +246,10 @@ fn base_profile() {
         .spawn()
         .expect("Failed to execute command");
     let mut lines = 0;
-    for line in output.stdout.lines() {
+    let stdout = output.stdout.expect("Failed to get stdout");
+    let mut stdout = BufReader::new(stdout);
+
+    for line in stdout.lines() {
         let line = line.expect("Failed to read line");
         if line.contains("Total Download Size:") {
             let parts: Vec<&str> = line.split_whitespace().collect();
