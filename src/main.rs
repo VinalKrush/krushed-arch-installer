@@ -210,34 +210,32 @@ fn driver_selector(state: &mut InstallerState) -> Result<(), io::Error> {
     }
 }
 
-// Disabling Root Passwords and User Account Creation because it breaks it idk why
+fn root_password(state: &mut InstallerState) -> Result<(), io::Error> {
+    let backend = CrosstermBackend::new(stdout());
+    let mut terminal = Terminal::new(backend)?;
+    terminal.clear()?;
 
-// fn root_password(state: &mut InstallerState) -> Result<(), io::Error> {
-//     let backend = CrosstermBackend::new(stdout());
-//     let mut terminal = Terminal::new(backend)?;
-//     terminal.clear()?;
+    // UCODE SELECT
+    let root_choices_msg = vec![ListItem::new("Please Set A Root Password\n\n ")];
 
-//     // UCODE SELECT
-//     let root_choices_msg = vec![ListItem::new("Please Set A Root Password\n\n ")];
+    let root_list = List::new(root_choices_msg).block(Block::default().borders(Borders::ALL));
 
-//     let root_list = List::new(root_choices_msg).block(Block::default().borders(Borders::ALL));
+    terminal.draw(|frame| {
+        let size = frame.area();
+        frame.render_widget(root_list, size);
+    })?;
 
-//     terminal.draw(|frame| {
-//         let size = frame.area();
-//         frame.render_widget(root_list, size);
-//     })?;
+    let root_pass = Password::new()
+        .with_confirmation("Confirm Password", "Passwords Do Not Match")
+        .interact()
+        .unwrap();
+    terminal.clear()?;
 
-//     let root_pass = Password::new()
-//         .with_confirmation("Confirm Password", "Passwords Do Not Match")
-//         .interact()
-//         .unwrap();
-//     terminal.clear()?;
+    state.root_pass = root_pass;
+    user_name(state)?;
 
-//     state.root_pass = root_pass;
-//     user_name(state)?;
-
-//     Ok(())
-// }
+    Ok(())
+}
 
 fn user_name(state: &mut InstallerState) -> Result<(), io::Error> {
     let backend = CrosstermBackend::new(stdout());
@@ -266,45 +264,13 @@ fn user_name(state: &mut InstallerState) -> Result<(), io::Error> {
     Ok(())
 }
 
-// fn user_password(state: &mut InstallerState) -> Result<(), io::Error> {
-//     let backend = CrosstermBackend::new(stdout());
-//     let mut terminal = Terminal::new(backend)?;
-//     terminal.clear()?;
-
-//     // UCODE SELECT
-//     let user_choices_msg = vec![ListItem::new("Please Set A User Password")];
-
-//     let user_list = List::new(user_choices_msg).block(Block::default().borders(Borders::ALL));
-
-//     terminal.draw(|frame| {
-//         let size = frame.area();
-//         frame.render_widget(user_list, size);
-//     })?;
-
-//     let user_pass = Password::new()
-//         .with_confirmation("Confirm Password", "Passwords Do Not Match")
-//         .interact()
-//         .unwrap();
-//     terminal.clear()?;
-
-//     state.user_pass = user_pass;
-//     host_name(state)?;
-//     Ok(())
-// }
-
 fn user_password(state: &mut InstallerState) -> Result<(), io::Error> {
     let backend = CrosstermBackend::new(stdout());
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
 
     // UCODE SELECT
-    let user_choices_msg = vec![
-        ListItem::new("Your User Password Is:"),
-        ListItem::new("0000"),
-        ListItem::new(""),
-        ListItem::new("Please Change This Password After Instaall With 'passwd'"),
-        ListItem::new("Press ENTER To Continue")
-    ];
+    let user_choices_msg = vec![ListItem::new("Please Set A User Password")];
 
     let user_list = List::new(user_choices_msg).block(Block::default().borders(Borders::ALL));
 
@@ -313,42 +279,14 @@ fn user_password(state: &mut InstallerState) -> Result<(), io::Error> {
         frame.render_widget(user_list, size);
     })?;
 
-    let user_pass = Confirm::new().default(true).interact().unwrap();
+    let user_pass = Password::new()
+        .with_confirmation("Confirm Password", "Passwords Do Not Match")
+        .interact()
+        .unwrap();
     terminal.clear()?;
 
-    if user_pass {
-        host_name(state)?;
-    }
-    Ok(())
-}
-
-fn root_password(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
-
-    // UCODE SELECT
-    let root_choices_msg = vec![
-        ListItem::new("Your Root Password Is:"),
-        ListItem::new("0000"),
-        ListItem::new(""),
-        ListItem::new("Please Change This Password After Instaall With 'passwd'"),
-        ListItem::new("Press ENTER To Continue")
-    ];
-
-    let root_list = List::new(root_choices_msg).block(Block::default().borders(Borders::ALL));
-
-    terminal.draw(|frame| {
-        let size = frame.area();
-        frame.render_widget(root_list, size);
-    })?;
-
-    let root_pass = Confirm::new().default(true).interact().unwrap();
-    terminal.clear()?;
-
-    if root_pass {
-        user_name(state)?;
-    }
+    state.user_pass = user_pass;
+    host_name(state)?;
     Ok(())
 }
 
@@ -510,25 +448,27 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     chroot_command(format!("chown -R {0}:{0} /home/{0}", state.username).as_str());
 
     println!("Setting Passwords...");
-    chroot_command(format!("sudo chpasswd <<< \"{0}:0000\"", state.username).as_str());
-    chroot_command(format!("sudo chpasswd <<< \"root:0000\"").as_str());
+    chroot_command(
+        format!("sudo chpasswd <<< \"{0}:{1}\"", state.username, state.user_pass).as_str()
+    );
+    chroot_command(format!("sudo chpasswd <<< \"root:{0}\"", state.root_pass).as_str());
 
-    // terminal.clear()?;
+    terminal.clear()?;
 
-    // println!("KRUSHED ARCH INSTALLER IS NOW DONE");
-    // let restart_confirmation = Confirm::new()
-    //     .with_prompt("DO YOU WANT TO RESTART?")
-    //     .default(true)
-    //     .interact()
-    //     .unwrap();
+    println!("KRUSHED ARCH INSTALLER IS NOW DONE");
+    let restart_confirmation = Confirm::new()
+        .with_prompt("DO YOU WANT TO RESTART?")
+        .default(true)
+        .interact()
+        .unwrap();
 
-    // if !restart_confirmation {
-    //     terminal.clear()?;
-    //     println!("Krushed Arch Installer Complete!");
-    //     return Ok(());
-    // } else {
-    //     run_command("reboot");
-    // }
+    if !restart_confirmation {
+        terminal.clear()?;
+        println!("Krushed Arch Installer Complete!");
+        return Ok(());
+    } else {
+        run_command("reboot");
+    }
 
     Ok(())
 }
