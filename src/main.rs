@@ -510,8 +510,8 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     chroot_command(format!("chown -R {0}:{0} /home/{0}", state.username).as_str());
 
     println!("Setting Passwords...");
-    chroot_command(format!("{0}:0000 | sudo chpasswd", state.username).as_str());
-    chroot_command(format!("root:0000 | sudo chpasswd").as_str());
+    chroot_command(format!("sudo chpasswd <<< \"{0}:0000\"", state.username).as_str());
+    chroot_command(format!("sudo chpasswd <<< \"root:0000\"").as_str());
 
     // terminal.clear()?;
 
