@@ -121,6 +121,7 @@ Gaming (Full KDE Desktop Gaming Environment With Preinstalled Wine-Staging And O
 use indicatif::{ ProgressBar, ProgressStyle };
 use std::process::Command;
 use std::io::stdout;
+use std::io::BufReader;
 pub enum InstallProfile {
     Base,
     Minimal,
