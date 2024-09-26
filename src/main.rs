@@ -17,10 +17,13 @@ FILES:
 mod profiles;
 mod ucode;
 mod drivers;
+mod bell;
 
+use gtk::ffi::gtk_recent_info_get_added;
 use profiles::{ InstallProfile, install_profile };
 use ucode::{ InstallUcode, install_ucode };
 use drivers::{ InstallDriver, install_driver };
+use bell::ring_bell;
 use ratatui::{ backend::CrosstermBackend, Terminal };
 use ratatui::widgets::{ List, ListItem, Block, Borders };
 use dialoguer::{ Password, Input, Confirm };
@@ -83,6 +86,7 @@ fn main() -> Result<(), io::Error> {
     if !driveconfirmation {
         terminal.clear()?;
         println!("Cancelled Install... \nPlease set up your drives...");
+        ring_bell();
         return Ok(());
     } else {
         profile_selector(&mut state)?;
@@ -134,6 +138,7 @@ fn profile_selector(state: &mut InstallerState) -> Result<(), io::Error> {
         Ok(())
     } else {
         println!("Invalid Profile Choice, Please Enter A Number Between 1 - 5");
+        ring_bell();
         return Ok(());
     }
 }
@@ -167,6 +172,7 @@ fn ucode_selector(state: &mut InstallerState) -> Result<(), io::Error> {
         Ok(())
     } else {
         println!("Invalid CPU Choice.");
+        ring_bell();
         return Ok(());
     }
 }
@@ -201,7 +207,8 @@ fn driver_selector(state: &mut InstallerState) -> Result<(), io::Error> {
         root_password(state)
         // root_password(state)
     } else {
-        println!("Invalid CPU Choice.");
+        println!("Invalid Driver Choice.");
+        ring_bell();
         return Ok(());
     }
 }
@@ -271,6 +278,7 @@ fn install_confirm(state: &mut InstallerState) -> Result<(), io::Error> {
     if !install_confirmation {
         terminal.clear()?;
         println!(" Install Cancelled...");
+        ring_bell();
         return Ok(());
     } else {
         start_install(state)?;
@@ -380,6 +388,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
             install_profile(chosen_profile);
         }
         _ => {
+            ring_bell();
             println!("A Weird Error Happened And I Didn't Remeber What Profile You Selected...");
         }
     }
@@ -394,6 +403,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
             install_ucode(chosen_ucode);
         }
         _ => {
+            ring_bell();
             println!("A Weird Error Happened And I Didn't Remeber What UCODE You Selected...");
         }
     }
@@ -420,6 +430,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
             install_driver(chosen_driver);
         }
         _ => {
+            ring_bell();
             println!("A Weird Error Happened And I Didn't Remeber What Driver You Selected...");
         }
     }
@@ -458,6 +469,9 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
 
     // User Creation
     terminal.clear()?;
+    ring_bell();
+    ring_bell();
+    ring_bell();
     let new_user_msg = Confirm::new()
         .with_prompt("Would You Like To Create A New User?")
         .default(true)
