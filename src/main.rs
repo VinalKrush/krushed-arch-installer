@@ -473,7 +473,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
 
         run_command(
             format!(
-                "cp -r /etc/krushed/arch-installer/user/.zshrc /mnt/home/{}/.zshrc",
+                "cp -r /etc/krushed/arch-installer/usr-config/.zshrc /mnt/home/{}/.zshrc",
                 state.username
             ).as_str()
         );
