@@ -119,6 +119,7 @@ Gaming (Full KDE Desktop Gaming Environment With Preinstalled Wine-Staging And O
 */
 
 use indicatif::{ ProgressBar, ProgressStyle };
+use std::process::Command;
 pub enum InstallProfile {
     Base,
     Minimal,
@@ -128,7 +129,6 @@ pub enum InstallProfile {
 }
 
 fn run_command(command: &str) {
-    use std::process::Command;
     let output = Command::new("sh")
         .arg("-c")
         .arg(command)
@@ -141,7 +141,6 @@ fn run_command(command: &str) {
 }
 
 fn chroot_command(_command: &str) {
-    use std::process::Command;
     let output = Command::new("sh")
         .arg("-c")
         .arg(format!("arch-chroot /mnt {}", _command))
@@ -232,9 +231,9 @@ fn base_profile() {
 
     let pb = ProgressBar::new_spinner();
     pb.set_style(
-        ProgressStyle::default_spinner()
-            .template("{msg} [{elapsed_precise}] [{wide_bar}] {pos}/{len} ({eta})")
-            .expect("Failed to set progress bar style")
+        ProgressStyle::default_spinner().template(
+            "{msg} [{elapsed_precise}] [{wide_bar}] {pos}/{len} ({eta})"
+        )
     );
     pb.set_message("Downloading system packages...");
     let command =
