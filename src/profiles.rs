@@ -75,7 +75,7 @@ Full Desktop (Full KDE Desktop Environment With Everything You'll Ever Need):
     kvantum
     ocs-url
     bluez
-
+    spotify-launcher
 
 
 Gaming (Full KDE Desktop Gaming Environment With Preinstalled Wine-Staging And Other Gaming Packages):
@@ -257,7 +257,7 @@ fn full_desktop_profile() {
     //Full Desktop Install
     println!("Downloading What Some People May Consider Bloat Packages...");
     run_command(
-        "pacstrap -K -P /mnt zsh noto-fonts-cjk noto-fonts-extra noto-fonts-emoji ttf-hack-nerd gparted gvfs gvfs-afc grub-customizer flatpak dpkg less qpwgraph gnome-calculator fzf fuse2 fuse3 alsa-utils ufw vlc libreoffice-fresh code kvantum bluez"
+        "pacstrap -K -P /mnt zsh noto-fonts-cjk noto-fonts-extra noto-fonts-emoji ttf-hack-nerd gparted gvfs gvfs-afc grub-customizer flatpak dpkg less qpwgraph gnome-calculator fzf fuse2 fuse3 alsa-utils ufw vlc libreoffice-fresh code kvantum bluez spotify-launcher"
     );
     chroot_command("systemctl enable bluetooth.service");
 }
