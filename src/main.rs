@@ -310,7 +310,7 @@ fn host_name(state: &mut InstallerState) -> Result<(), io::Error> {
     let host_na = Input::new().interact().unwrap();
     terminal.clear()?;
 
-    state.hostname = user_na;
+    state.hostname = host_na;
     install_confirm(state)?;
 
     Ok(())
@@ -440,7 +440,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
 
     // This must be done before the passwords are set
     if state.selected_profile >= 4 {
-        fn user_su_command(_acommand: &str) {
+        fn user_su_command(_acommand: &str, state: &mut InstallerState) {
             use std::process::Command;
             let output = Command::new("sh")
                 .arg("-c")
@@ -453,19 +453,23 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
             }
         }
         println!("Installing ZSH");
-        user_su_command("zsh");
+        user_su_command("zsh", state);
         user_su_command(
-            "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\""
+            "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\"",
+            state
         );
         user_su_command(
-            "git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting"
+            "git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting",
+            state
         );
         user_su_command(
-            "git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions"
+            "git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions",
+            state
         );
 
         user_su_command(
-            "git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k"
+            "git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k",
+            state
         );
 
         run_command(
@@ -477,7 +481,8 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
 
         println!("Installing Yay Package Manager...");
         user_su_command(
-            "git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si && cd .. && sudo rm -rf yay"
+            "git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si && cd .. && sudo rm -rf yay",
+            state
         );
     }
 
