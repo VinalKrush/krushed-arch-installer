@@ -8,7 +8,9 @@ fi
 
 clear
 
-echo "NOTE: THIS SCRIPT IS UNTESTED. USE AT YOUR OWN RISK"
+echo "NOTE: CURRENTLY KNOWN BUGS:"
+echo "User Creation Does Not Change The Sudoers File So It Does Not Make Admin Accounts"
+echo ""
 echo "PRESS ENTER TO CONTINUE"
 read
 
