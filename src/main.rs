@@ -425,6 +425,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     println!("");
     println!("");
     println!("");
+    chroot_command("ln -s /usr/bin/vim /usr/bin/vi");
 
     // Installing Grub So If Install Fails Beyond  This Point, You Can Still Boot Into The Install.
     println!("Setting Up Grub...");
@@ -433,11 +434,9 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     );
     chroot_command("grub-mkconfig -o /boot/grub/grub.cfg");
 
-    println!("Setting Host Name...");
+    println!("Setting Hostname...");
     //Using shell command because idk how to write to files in rust yet
     chroot_command(format!("echo \"{0}\" > /etc/hostname", state.hostname).as_str());
-
-    chroot_command("ln -s /usr/bin/vim /usr/bin/vi");
 
     println!("Generating Locale...");
     chroot_command("locale-gen");
