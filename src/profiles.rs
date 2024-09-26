@@ -117,6 +117,8 @@ Gaming (Full KDE Desktop Gaming Environment With Preinstalled Wine-Staging And O
     jre17-openjdk
     jre21-openjdk
 */
+
+use indicatif::{ ProgressBar, ProgressStyle };
 pub enum InstallProfile {
     Base,
     Minimal,
@@ -223,12 +225,45 @@ pub fn install_profile(profile: InstallProfile) {
 
 fn base_profile() {
     //Base Install
-    println!("Downloading Base Packages...");
-    run_command(
-        "pacstrap -K -P /mnt base base-devel linux linux-firmware linux-headers grub efibootmgr openssh networkmanager vim git"
+    // println!("Downloading Base Packages...");
+    // run_command(
+    //     "pacstrap -K -P /mnt base base-devel linux linux-firmware linux-headers grub efibootmgr openssh networkmanager vim git"
+    // );
+
+    let pb = ProgressBar::new_spinner();
+    pb.set_style(
+        ProgressStyle::default_spinner()
+            .template("{msg} [{elapsed_precise}] [{wide_bar}] {pos}/{len} ({eta})")
+            .expect("Failed to set progress bar style")
     );
-    run_command("touch /mnt/etc/sudoers");
+    pb.set_message("Downloading system packages...");
+    let command =
+        "pacstrap -K -P /mnt base base-devel linux linux-firmware linux-headers grub efibootmgr openssh networkmanager vim git";
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg(command)
+        .stdout(stdout())
+        .spawn()
+        .expect("Failed to execute command");
+    let mut lines = 0;
+    for line in output.stdout.lines() {
+        let line = line.expect("Failed to read line");
+        if line.contains("Total Download Size:") {
+            let parts: Vec<&str> = line.split_whitespace().collect();
+            let total_size: u64 = parts[3].parse().expect("Failed to parse total size");
+            pb.set_length(total_size);
+        } else if line.contains("Downloaded:") {
+            let parts: Vec<&str> = line.split_whitespace().collect();
+            let downloaded: u64 = parts[1].parse().expect("Failed to parse downloaded size");
+            pb.inc(downloaded);
+        }
+        lines += 1;
+    }
+    pb.finish_with_message("System packages downloaded");
+
+    chroot_command("chmod +rw /etc/sudoers");
     run_command("cp -r /etc/sudoers /mnt/etc/sudoers");
+    chroot_command("chmod -rw /etc/sudoers");
     chroot_command("systemctl enable NetworkManager.service");
 }
 
