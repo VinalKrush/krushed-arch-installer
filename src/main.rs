@@ -510,25 +510,25 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     chroot_command(format!("chown -R {0}:{0} /home/{0}", state.username).as_str());
 
     println!("Setting Passwords...");
-    chroot_command(format!("echo '{0}:0000' | sudo chpasswd", state.username).as_str());
-    chroot_command(format!("echo 'root:0000' | sudo chpasswd").as_str());
+    chroot_command(format!("{0}:0000 | sudo chpasswd", state.username).as_str());
+    chroot_command(format!("root:0000 | sudo chpasswd").as_str());
 
-    terminal.clear()?;
+    // terminal.clear()?;
 
-    println!("KRUSHED ARCH INSTALLER IS NOW DONE");
-    let restart_confirmation = Confirm::new()
-        .with_prompt("DO YOU WANT TO RESTART?")
-        .default(true)
-        .interact()
-        .unwrap();
+    // println!("KRUSHED ARCH INSTALLER IS NOW DONE");
+    // let restart_confirmation = Confirm::new()
+    //     .with_prompt("DO YOU WANT TO RESTART?")
+    //     .default(true)
+    //     .interact()
+    //     .unwrap();
 
-    if !restart_confirmation {
-        terminal.clear()?;
-        println!("Krushed Arch Installer Complete!");
-        return Ok(());
-    } else {
-        run_command("reboot");
-    }
+    // if !restart_confirmation {
+    //     terminal.clear()?;
+    //     println!("Krushed Arch Installer Complete!");
+    //     return Ok(());
+    // } else {
+    //     run_command("reboot");
+    // }
 
     Ok(())
 }
