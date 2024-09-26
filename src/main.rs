@@ -428,7 +428,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
 
     println!("Setting Host Name...");
     //Using shell command because idk how to write to files in rust yet
-    chroot_command(format!("echo \"{}\" > /etc/hostname", state.hostname).as_str());
+    chroot_command(format!("echo \"{0}\" > /etc/hostname", state.hostname).as_str());
 
     chroot_command("ln -s /usr/bin/vim /usr/bin/vi");
 
@@ -439,15 +439,15 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     chroot_command("mkinitcpio -P");
 
     println!("Making User Account...");
-    chroot_command(format!("mkdir /home/{}", state.username).as_str());
-    chroot_command(format!("useradd -m -G wheel {}", state.username).as_str());
-    chroot_command(
-        format!("chown -R {}:{} /home/{}", state.username, state.username, state.username).as_str()
-    );
+    chroot_command(format!("mkdir /home/{0}", state.username).as_str());
+    chroot_command(format!("useradd -m -G wheel {0}", state.username).as_str());
+    chroot_command(format!("chown -R {0}:{0} /home/{0}", state.username).as_str());
 
     println!("Setting Passwords...");
-    chroot_command(format!("{}:{} | chpasswd", state.username, state.user_pass).as_str());
-    chroot_command(format!("root:{}  | chpasswd", state.root_pass).as_str());
+    chroot_command(
+        format!("echo '{0}:{1}' | sudo chpasswd", state.username, state.user_pass).as_str()
+    );
+    chroot_command(format!("echo 'root:{0}'  | sudo chpasswd", state.root_pass).as_str());
 
     terminal.clear()?;
 
