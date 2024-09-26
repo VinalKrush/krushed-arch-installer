@@ -16,7 +16,8 @@ read
 mkdir -p /etc/krushed/arch-installer/etc
 mkdir -p /etc/krushed/arch-installer/usr-config
 cp -r etc/* /etc/krushed/arch-installer/etc/
-cp -r usr-config/* /etc/krushed/arch-installer/usr-config/
+touch etc/krushed/arch-installer/usr-config/.zshrc
+cp -r usr-config/.zshrc /etc/krushed/arch-installer/usr-config/.zshrc
 cp /etc/krushed/arch-installer/etc/pacman.conf /etc/pacman.conf
 
 # Install the compiled binary
