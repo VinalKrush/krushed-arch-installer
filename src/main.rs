@@ -320,9 +320,9 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     let backend = CrosstermBackend::new(stdout());
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
-    let mut chosen_profile;
-    let mut chosen_ucode;
-    let mut chosen_driver;
+    let chosen_profile;
+    let chosen_ucode;
+    let chosen_driver;
     // let mut chosen_root_password = state.root_pass;
     // let mut chosen_username = state.username;
     // let mut chosen_user_password = state.user_pass;

@@ -116,9 +116,6 @@ Gaming (Full KDE Desktop Gaming Environment With Preinstalled Wine-Staging And O
     jre17-openjdk
     jre21-openjdk
 */
-
-use gtk::prelude::*;
-use indicatif::{ ProgressBar, ProgressStyle };
 pub enum InstallProfile {
     Base,
     Minimal,
