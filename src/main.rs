@@ -419,13 +419,13 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     //Using shell command because idk how to write to files in rust yet
     chroot_command(format!("echo \"{}\" > /etc/hostname", state.hostname).as_str());
 
-    run_command("ln -s /usr/bin/vim /usr/bin/vi");
+    chroot_command("ln -s /usr/bin/vim /usr/bin/vi");
 
     println!("Generating Locale...");
-    run_command("locale-gen");
+    chroot_command("locale-gen");
 
     println!("Generating initramfs...");
-    run_command("mkinitcpio -P");
+    chroot_command("mkinitcpio -P");
 
     println!("Making User Account...");
     chroot_command(format!("mkdir /home/{}", state.username).as_str());
@@ -433,54 +433,6 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     chroot_command(
         format!("chown -R {}:{} /home/{}", state.username, state.username, state.username).as_str()
     );
-
-    // This must be done before the passwords are set
-    if state.selected_profile >= 4 {
-        fn user_su_command(_acommand: &str, state: &mut InstallerState) {
-            use std::process::Command;
-            let output = Command::new("sh")
-                .arg("-c")
-                .arg(format!("arch-chroot /mnt su {} -c \"{}\"", state.username, _acommand))
-                .output()
-                .expect("Failed to execute chroot command");
-
-            if !output.status.success() {
-                println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
-            }
-        }
-        println!("Installing ZSH");
-        user_su_command("zsh", state);
-        user_su_command(
-            "sh -c \"$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)\"",
-            state
-        );
-        user_su_command(
-            "git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting",
-            state
-        );
-        user_su_command(
-            "git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions",
-            state
-        );
-
-        user_su_command(
-            "git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k",
-            state
-        );
-
-        run_command(
-            format!(
-                "cp -r /etc/krushed/arch-installer/usr-config/.zshrc /mnt/home/{}/.zshrc",
-                state.username
-            ).as_str()
-        );
-
-        println!("Installing Yay Package Manager...");
-        user_su_command(
-            "git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si && cd .. && sudo rm -rf yay",
-            state
-        );
-    }
 
     chroot_command(format!("{}:{} | chpasswd", state.username, state.user_pass).as_str());
     chroot_command(format!("root:{}  | chpasswd", state.root_pass).as_str());

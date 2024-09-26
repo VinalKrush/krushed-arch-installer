@@ -74,6 +74,7 @@ Full Desktop (Full KDE Desktop Environment With Everything You'll Ever Need):
     code
     kvantum
     ocs-url
+    bluez
 
 
 
@@ -131,6 +132,19 @@ fn run_command(command: &str) {
         .arg(command)
         .output()
         .expect("Failed to execute command");
+
+    if !output.status.success() {
+        println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
+    }
+}
+
+fn chroot_command(_command: &str) {
+    use std::process::Command;
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg(format!("arch-chroot /mnt {}", _command))
+        .output()
+        .expect("Failed to execute chroot command");
 
     if !output.status.success() {
         println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
@@ -221,6 +235,8 @@ fn minimal_profile() {
     run_command(
         "pacstrap -K -P /mnt os-prober fastfetch btop ly reflector ldns wget curl xclip unzip unrar btrfs-progs exfat-utils ntfs-3g"
     );
+    run_command("cp -r /etc/xdg/reflector/reflector.conf /mnt/etc/xdg/reflector/reflector.conf ");
+    chroot_command("systemctl enable ly.service reflector.service");
 }
 
 fn desktop_profile() {
@@ -235,8 +251,9 @@ fn full_desktop_profile() {
     //Full Desktop Install
     println!("Installing What Some People May Consider Bloat Packages...");
     run_command(
-        "pacstrap -K -P /mnt zsh noto-fonts-cjk noto-fonts-extra noto-fonts-emoji ttf-hack-nerd gparted gvfs gvfs-afc grub-customizer flatpak dpkg less qpwgraph gnome-calculator fzf fuse2 fuse3 alsa-utils ufw vlc libreoffice-fresh code kvantum"
+        "pacstrap -K -P /mnt zsh noto-fonts-cjk noto-fonts-extra noto-fonts-emoji ttf-hack-nerd gparted gvfs gvfs-afc grub-customizer flatpak dpkg less qpwgraph gnome-calculator fzf fuse2 fuse3 alsa-utils ufw vlc libreoffice-fresh code kvantum bluez"
     );
+    chroot_command("systemctl enable bluetooth.service");
 }
 
 fn gaming_profile() {
