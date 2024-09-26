@@ -202,7 +202,8 @@ fn driver_selector(state: &mut InstallerState) -> Result<(), io::Error> {
 
     if selected_driver >= 1 && selected_driver <= 5 {
         state.selected_driver = selected_driver;
-        root_password(state)
+        host_name(state)
+        // root_password(state)
     } else {
         println!("Invalid CPU Choice.");
         return Ok(());
