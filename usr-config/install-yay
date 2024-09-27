@@ -9,7 +9,7 @@ cd yay
 makepkg -si
 cd ..
 rm -rf yay
-sudo rm -rf install-yay.sh
+sudo rm -rf /usr/bin/install-yay
 yay -Syu
 clear
 echo "Yay Is Now Installed"

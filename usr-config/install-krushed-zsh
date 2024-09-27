@@ -15,4 +15,4 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$
 echo "ZSH IS INSTALLED"
 echo "Zsh most likely renamed our .zshrc file to .zshrc-pre-oh-my-zsh."
 echo "To use our config, simply rename it back"
-sudo rm -rf install-krushed-zsh.sh
+sudo rm -rf /usr/bin/install-krushed-zsh
