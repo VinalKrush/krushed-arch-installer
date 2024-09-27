@@ -336,11 +336,39 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
         Ok(())
     }
 
+    fn other_installers(state: &mut InstallerState) -> Result<(), io::Error> {
+        // Install yay installer
+        run_command(format!("touch /mnt/home/{0}/install-yay.sh", username).as_str());
+        run_command(
+            format!(
+                "cp -r /etc/krushed/arch-installer/usr-config/install-yay.sh /mnt/home/{0}/install-yay.sh",
+                username
+            ).as_str()
+        );
+        chroot_command(format!("chmod +x /home/{0}/install-yay.sh", username).as_str());
+
+        // Install krushed zsh config installer
+        run_command(format!("touch /mnt/home/{0}/install-krushed-zsh.sh", username).as_str());
+        run_command(
+            format!(
+                "cp -r /etc/krushed/arch-installer/usr-config/install-krushed-zsh.sh /mnt/home/{0}/install-krushed-zsh.sh",
+                username
+            ).as_str()
+        );
+        chroot_command(format!("chmod +x /home/{0}/install-krushed-zsh.sh", username).as_str());
+        Ok(())
+    }
+
     if user_admin {
         create_user(username, password, user_admin)?;
     } else {
         create_user_no_admin(username, password, user_admin)?;
     }
+
+    if state.selected_profile >= 4 {
+        other_installers(state)?;
+    }
+
     // Ask if they want to make another user
     terminal.clear()?;
     let another_user = Confirm::new()
