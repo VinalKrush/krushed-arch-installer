@@ -366,7 +366,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
     }
 
     if state.selected_profile >= 4 {
-        other_installers(state)?;
+        other_installers(username)?;
     }
 
     // Ask if they want to make another user
