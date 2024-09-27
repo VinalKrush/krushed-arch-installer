@@ -230,7 +230,7 @@ fn base_profile() {
     );
 
     chroot_command("chmod +rw /etc/sudoers");
-    run_command("cp -r /etc/sudoers /mnt/etc/sudoers");
+    run_command("cp -r -f /etc/sudoers /mnt/etc/sudoers");
     chroot_command("chmod -rw /etc/sudoers");
     chroot_command("systemctl enable NetworkManager.service");
 }
