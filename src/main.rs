@@ -19,7 +19,6 @@ mod ucode;
 mod drivers;
 mod bell;
 
-use gtk::ffi::gtk_recent_info_get_added;
 use profiles::{ InstallProfile, install_profile };
 use ucode::{ InstallUcode, install_ucode };
 use drivers::{ InstallDriver, install_driver };
@@ -314,7 +313,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
         .interact()
         .unwrap();
 
-    fn create_user(username: String, password: String, admin: bool) -> Result<(), io::Error> {
+    fn create_user(username: String, password: String, user_admin: bool) -> Result<(), io::Error> {
         // Create user and add to wheel group and set password
         chroot_command(format!("mkdir /home/{0}", username).as_str());
         chroot_command(format!("useradd -m -G wheel {0}", username).as_str());
@@ -326,7 +325,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
     fn create_user_no_admin(
         username: String,
         password: String,
-        admin: bool
+        user_admin: bool
     ) -> Result<(), io::Error> {
         // Create user and set password
         chroot_command(format!("mkdir /home/{0}", username).as_str());
@@ -355,15 +354,14 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
                 ).as_str()
             );
             chroot_command(format!("chmod +x /usr/bin/install-krushed-zsh").as_str());
-            Ok(());
         }
         Ok(())
     }
 
     if user_admin {
-        create_user(userna, password, user_admin)?;
+        create_user(username, password, user_admin)?;
     } else {
-        create_user_no_admin(userna, password, user_admin)?;
+        create_user_no_admin(username, password, user_admin)?;
     }
 
     other_installers(state)?;
