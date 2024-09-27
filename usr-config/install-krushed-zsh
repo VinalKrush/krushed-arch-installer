@@ -1,5 +1,9 @@
 #!/bin/bash
 clear
+echo "This script will automaticly delete itself after installation."
+echo "Are you sure you want to install the krushed zsh configs? (ENTER/Ctrl + c)"
+read
+clear
 echo "TYPE 'exit' WHEN YOU ENTER ZSH"
 echo "Press ENTER To Contiune"
 read
@@ -11,3 +15,4 @@ git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$
 echo "ZSH IS INSTALLED"
 echo "Zsh most likely renamed our .zshrc file to .zshrc-pre-oh-my-zsh."
 echo "To use our config, simply rename it back"
+sudo rm -rf install-krushed-zsh.sh

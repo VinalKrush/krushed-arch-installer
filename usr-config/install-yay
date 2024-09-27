@@ -1,10 +1,15 @@
 #!/bin/bash
 clear
+echo "This script will automaticly delete itself after installation."
+echo "Are you sure you want to install yay? (ENTER/Ctrl + c)"
+read
+clear
 git clone https://aur.archlinux.org/yay.git
 cd yay
 makepkg -si
 cd ..
 rm -rf yay
+sudo rm -rf install-yay.sh
 yay -Syu
 clear
 echo "Yay Is Now Installed"
