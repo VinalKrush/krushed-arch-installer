@@ -336,7 +336,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
         Ok(())
     }
 
-    fn other_installers(state: &mut InstallerState) -> Result<(), io::Error> {
+    fn other_installers(username: String) -> Result<(), io::Error> {
         // Install yay installer
         run_command(format!("touch /mnt/home/{0}/install-yay.sh", username).as_str());
         run_command(
