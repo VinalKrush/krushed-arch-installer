@@ -360,13 +360,17 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
     }
 
     if user_admin {
-        create_user(username, password, user_admin)?;
+        let userna = username;
+        if state.selected_profile >= 4 {
+            other_installers(userna)?;
+        }
+        create_user(userna, password, user_admin)?;
     } else {
-        create_user_no_admin(username, password, user_admin)?;
-    }
-
-    if state.selected_profile >= 4 {
-        other_installers(username)?;
+        let userna = username;
+        if state.selected_profile >= 4 {
+            other_installers(userna)?;
+        }
+        create_user_no_admin(userna, password, user_admin)?;
     }
 
     // Ask if they want to make another user
