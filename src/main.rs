@@ -336,27 +336,25 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
         Ok(())
     }
 
-    fn other_installers(username: String, state: &mut InstallerState) -> Result<(), io::Error> {
+    fn other_installers(state: &mut InstallerState) -> Result<(), io::Error> {
         if state.selected_profile >= 4 {
             // Install yay installer
-            run_command(format!("touch /mnt/home/{0}/install-yay.sh", username).as_str());
+            run_command(format!("touch /mnt/usr/bin/install-yay").as_str());
             run_command(
                 format!(
-                    "cp -r /etc/krushed/arch-installer/usr-config/install-yay.sh /mnt/home/{0}/install-yay.sh",
-                    username
+                    "cp -r /etc/krushed/arch-installer/usr-config/install-yay.sh /usr/bin/install-yay"
                 ).as_str()
             );
-            chroot_command(format!("chmod +x /home/{0}/install-yay.sh", username).as_str());
+            chroot_command(format!("chmod +x /usr/bin/install-yay").as_str());
 
             // Install krushed zsh config installer
-            run_command(format!("touch /mnt/home/{0}/install-krushed-zsh.sh", username).as_str());
+            run_command(format!("touch /usr/bin/install-krushed-zsh").as_str());
             run_command(
                 format!(
-                    "cp -r /etc/krushed/arch-installer/usr-config/install-krushed-zsh.sh /mnt/home/{0}/install-krushed-zsh.sh",
-                    username
+                    "cp -r /etc/krushed/arch-installer/usr-config/install-krushed-zsh.sh /usr/bin/install-krushed-zsh"
                 ).as_str()
             );
-            chroot_command(format!("chmod +x /home/{0}/install-krushed-zsh.sh", username).as_str());
+            chroot_command(format!("chmod +x /usr/bin/install-krushed-zsh").as_str());
             Ok(());
         }
         Ok(())
@@ -367,6 +365,8 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
     } else {
         create_user_no_admin(userna, password, user_admin)?;
     }
+
+    other_installers(state)?;
 
     // Ask if they want to make another user
     terminal.clear()?;
