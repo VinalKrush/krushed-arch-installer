@@ -21,9 +21,13 @@ read
 mkdir -p /etc/krushed/arch-installer/etc
 mkdir -p /etc/krushed/arch-installer/usr-config
 touch /etc/krushed/arch-installer/usr-config/.zshrc
+touch /etc/krushed/arch-installer/usr-config/install-krushed-zsh.sh
+touch /etc/krushed/arch-installer/usr-config/install-yay.sh
 
 cp -r etc/* /etc/krushed/arch-installer/etc/
 cp -r usr-config/.zshrc /etc/krushed/arch-installer/usr-config/.zshrc
+cp -r usr-config/install-krushed-zsh /etc/krushed/arch-installer/usr-config/install-krushed-zsh.sh
+cp -r usr-config/install-yay /etc/krushed/arch-installer/usr-config/install-yay.sh
 cp /etc/krushed/arch-installer/etc/pacman.conf /etc/pacman.conf
 
 # Install the compiled binary

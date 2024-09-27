@@ -1,0 +1,13 @@
+#!/bin/bash
+clear
+echo "TYPE 'exit' WHEN YOU ENTER ZSH"
+echo "Press ENTER To Contiune"
+read
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+git clone https://github.com/zsh-users/zsh-syntax-highlighting.git ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-syntax-highlighting
+git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+
+echo "ZSH IS INSTALLED"
+echo "Zsh most likely renamed our .zshrc file to .zshrc-pre-oh-my-zsh."
+echo "To use our config, simply rename it back"
