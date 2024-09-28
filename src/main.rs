@@ -507,6 +507,8 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         user_creation(state);
     }
 
+    chroot_command("echo 'wheel ALL=(ALL:ALL) ALL' | sudo EDITOR='tee -a' visudo");
+
     chroot_command(format!("sudo chpasswd <<< \"root:{0}\"", state.root_pass).as_str());
 
     terminal.clear()?;

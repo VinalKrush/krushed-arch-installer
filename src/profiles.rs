@@ -227,10 +227,6 @@ fn base_profile() {
     run_command(
         "pacstrap -K -P /mnt base base-devel linux linux-firmware linux-headers grub efibootmgr openssh networkmanager vim git"
     );
-
-    chroot_command("chmod +rw /etc/sudoers");
-    run_command("cp -r -f /etc/sudoers /mnt/etc/sudoers");
-    chroot_command("chmod -rw /etc/sudoers");
     chroot_command("systemctl enable NetworkManager.service");
 }
 
