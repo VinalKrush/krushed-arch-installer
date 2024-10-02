@@ -39,7 +39,8 @@ use ratatui::{
     Terminal,
 };
 use dialoguer::{ Password, Input, Confirm };
-use std::{ io, self, io::stdout, thread::sleep, time::Duration };
+use std::{ io, self, io::stdout, thread::sleep, time::Duration, fs::OpenOptions, io::Write };
+
 struct InstallerState {
     selected_profile: i32,
     selected_ucode: i32,
@@ -477,12 +478,20 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         chroot_command("chmod 600 /swapfile");
         chroot_command("mkswap /swapfile");
         chroot_command("swapon /swapfile");
-        chroot_command("echo '/swapfile swap swap defaults 0 0' >> /etc/fstab");
+        let mut fstab_file = OpenOptions::new().write(true).append(true).open("/mnt/etc/fstab");
+        fstab_file.write_all("\n".as_bytes());
+        fstab_file.write_all("/swapfile swap swap defaults 0 0");
     }
 
     println!("Setting Hostname...");
     //Using shell command because idk how to write to files in rust yet
-    chroot_command(format!("echo \"{0}\" > /etc/hostname", state.hostname).as_str());
+
+    let mut hostname_file = OpenOptions::new()
+        .write(true)
+        .append(true) // Append to the file instead of truncating
+        .open("/mnt/etc/hostname")?;
+
+    hostname_file.write_all(state.hostname.as_bytes())?;
 
     println!("Generating Locale...");
     chroot_command("locale-gen");
