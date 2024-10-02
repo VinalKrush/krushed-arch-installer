@@ -49,7 +49,7 @@ struct InstallerState {
     swap_size: i32,
 }
 
-fn main() -> Result<(), io::Error> {
+pub fn main() -> Result<(), io::Error> {
     let mut state = InstallerState {
         selected_profile: 0,
         selected_ucode: 0,

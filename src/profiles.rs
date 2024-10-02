@@ -117,9 +117,7 @@ Gaming (Full KDE Desktop Gaming Environment With Preinstalled Wine-Staging And O
     jre17-openjdk
     jre21-openjdk
 */
-mod main;
-use main::run_command;
-use main::chroot_command;
+use crate::main::{ run_command, chroot_command };
 use tui::{ new_tui_text, clear_terminal };
 
 use ratatui::{
