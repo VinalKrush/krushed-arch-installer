@@ -39,7 +39,7 @@ use ratatui::{
     Terminal,
 };
 use dialoguer::{ Password, Input, Confirm };
-use std::{ io, self, stdout, thread::sleep, time::Duration };
+use std::{ io, self, io::stdout, thread::sleep, time::Duration };
 struct InstallerState {
     selected_profile: i32,
     selected_ucode: i32,

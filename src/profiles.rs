@@ -155,6 +155,7 @@ fn run_command(command: &str) {
 }
 
 fn chroot_command(_command: &str) {
+    use std::process::Command;
     let output = Command::new("sh")
         .arg("-c")
         .arg(format!("arch-chroot /mnt {}", _command))
