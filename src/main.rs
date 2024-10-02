@@ -485,6 +485,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     println!("Setting Hostname...");
     //Using shell command because idk how to write to files in rust yet
 
+    run_command("touch /mnt/etc/hostname");
     let mut hostname_file = OpenOptions::new()
         .write(true)
         .append(true) // Append to the file instead of truncating
