@@ -420,7 +420,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         _ => {
             ring_bell();
             println!("A Weird Error Happened And I Didn't Remeber What UCODE You Selected...");
-            sleep(Duration::from_secs("5"));
+            sleep(Duration::from_secs(5));
         }
     }
 
@@ -450,7 +450,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
             install_driver(chosen_driver);
             ring_bell();
             println!("A Weird Error Happened And I Didn't Remeber What Driver You Selected...");
-            sleep(Duration::from_secs("5"));
+            sleep(Duration::from_secs(5));
         }
     }
     println!("Generating fstab...");
