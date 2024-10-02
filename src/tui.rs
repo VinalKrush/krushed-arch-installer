@@ -1,5 +1,3 @@
-use tui::{ new_tui_text, clear_terminal };
-
 use ratatui::{
     buffer::Buffer,
     backend::CrosstermBackend,
