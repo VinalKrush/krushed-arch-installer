@@ -39,15 +39,19 @@ pub fn new_tui_text(msg: String) -> Result<(), io::Error> {
     Ok(())
 }
 
-// pub fn clear_terminal() {
-//     let backend = CrosstermBackend::new(stdout());
-//     let mut terminal = Terminal::new(backend);
-//     terminal.clear();
-// }
+pub fn run_command(command: &str) {
+    use std::process::Command;
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg(command)
+        .output()
+        .expect("Failed to execute command");
 
-pub fn clear_terminal() -> Result<(), std::io::Error> {
-    enable_raw_mode()?;
-    let _ = execute!(std::io::stdout(), EnterAlternateScreen, disable_raw_mode());
-    println!("\x1B[2J\x1B[1;1H"); // clear screen and move cursor to top left
-    Ok(())
+    if !output.status.success() {
+        println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
+    }
+}
+
+pub fn clear_terminal() {
+    run_command("clear");
 }
