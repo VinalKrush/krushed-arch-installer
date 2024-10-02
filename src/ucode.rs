@@ -40,7 +40,7 @@ pub fn install_ucode(ucode: InstallUcode) {
             let text = Text::from(vec![Line::from("Downloading INTEL UCODE...")])
                 .blue()
                 .centered();
-            new_tui_text(text);
+            new_tui_text(text.to_string());
             run_command("pacstrap -K -P /mnt intel-ucode");
         }
         InstallUcode::AMD => {
@@ -48,7 +48,7 @@ pub fn install_ucode(ucode: InstallUcode) {
             let text = Text::from(vec![Line::from("Downloading AMD UCODE...")])
                 .red()
                 .centered();
-            new_tui_text(text);
+            new_tui_text(text.to_string());
             run_command("pacstrap -K -P /mnt amd-ucode");
         }
     }

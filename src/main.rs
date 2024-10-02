@@ -77,7 +77,7 @@ pub fn main() -> Result<(), io::Error> {
 
     if !driveconfirmation {
         let text = Text::from(vec![Line::from("Install Cancelled...")]).centered();
-        new_text(text);
+        new_tui_text(text.to_string());
         ring_bell();
         return Ok(());
     } else {
