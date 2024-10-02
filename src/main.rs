@@ -71,7 +71,7 @@ pub fn main() -> Result<(), io::Error> {
     )
         .magenta()
         .centered();
-    new_tui_text(text);
+    new_tui_text(text.to_string());
 
     let driveconfirmation = Confirm::new().default(true).interact().unwrap();
 
@@ -111,7 +111,7 @@ fn profile_selector(state: &mut InstallerState) -> Result<(), io::Error> {
     )
         .magenta()
         .centered();
-    new_tui_text(text);
+    new_tui_text(text.to_string());
     let selected_profile = Input::<i32>::new().interact_text().unwrap();
 
     if selected_profile >= 1 && selected_profile <= 5 {
@@ -138,7 +138,7 @@ fn ucode_selector(state: &mut InstallerState) -> Result<(), io::Error> {
     )
         .magenta()
         .centered();
-    new_tui_text(text);
+    new_tui_text(text.to_string());
 
     let selected_ucode = Input::<i32>::new().interact_text().unwrap();
 
@@ -169,7 +169,7 @@ fn driver_selector(state: &mut InstallerState) -> Result<(), io::Error> {
     )
         .magenta()
         .centered();
-    new_tui_text(text);
+    new_tui_text(text.to_string());
 
     let selected_driver = Input::<i32>::new().interact_text().unwrap();
 
@@ -190,7 +190,7 @@ fn root_password(state: &mut InstallerState) -> Result<(), io::Error> {
     )
         .magenta()
         .centered();
-    new_tui_text(text);
+    new_tui_text(text.to_string());
 
     let root_pass = Password::new()
         .with_confirmation("Confirm Password", "Passwords Do Not Match")
@@ -207,7 +207,7 @@ fn host_name(state: &mut InstallerState) -> Result<(), io::Error> {
     let text = Text::from(vec![Line::from("Please Type Set A Hostname")])
         .magenta()
         .centered();
-    new_tui_text(text);
+    new_tui_text(text.to_string());
 
     let host_name = Input::new().interact().unwrap();
     clear_terminal();
@@ -224,7 +224,7 @@ fn swap_creation(state: &mut InstallerState) -> Result<(), io::Error> {
     )
         .magenta()
         .centered();
-    new_tui_text(text);
+    new_tui_text(text.to_string());
 
     let confirm = Confirm::new().default(true).interact().unwrap();
 
@@ -240,7 +240,7 @@ fn swap_creation(state: &mut InstallerState) -> Result<(), io::Error> {
         )
             .magenta()
             .centered();
-        new_tui_text(text);
+        new_tui_text(text.to_string());
 
         let swap_size = Input::<i32>::new().interact_text().unwrap();
 
@@ -262,7 +262,7 @@ fn install_confirm(state: &mut InstallerState) -> Result<(), io::Error> {
     )
         .magenta()
         .centered();
-    new_tui_text(text);
+    new_tui_text(text.to_string());
 
     let install_confirmation = Confirm::new().default(true).interact().unwrap();
 
