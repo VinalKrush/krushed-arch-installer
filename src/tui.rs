@@ -13,7 +13,7 @@ use ratatui::{
 };
 use std::io::{ self, stdout };
 
-pub fn new_tui_text(msg: String) -> Result<()> {
+pub fn new_tui_text(msg: String) -> Result<(), io::Error> {
     let backend = CrosstermBackend::new(stdout());
     let mut terminal = Terminal::new(backend)?;
     clear_terminal();
@@ -30,7 +30,7 @@ pub fn new_tui_text(msg: String) -> Result<()> {
     Ok(())
 }
 
-pub fn clear_terminal() -> io::Result<(), io::Error> {
+pub fn clear_terminal() -> io::Result<()> {
     let backend = CrosstermBackend::new(stdout());
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
