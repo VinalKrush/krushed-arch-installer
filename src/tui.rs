@@ -13,6 +13,14 @@ use ratatui::{
 };
 use std::io::{ self, stdout };
 
+use crossterm::execute;
+use crossterm::terminal::{
+    disable_raw_mode,
+    enable_raw_mode,
+    EnterAlternateScreen,
+    LeaveAlternateScreen,
+};
+
 pub fn new_tui_text(msg: String) -> Result<(), io::Error> {
     let backend = CrosstermBackend::new(stdout());
     let mut terminal = Terminal::new(backend)?;
@@ -37,13 +45,6 @@ pub fn new_tui_text(msg: String) -> Result<(), io::Error> {
 // }
 
 pub fn clear_terminal() -> Result<(), std::io::Error> {
-    use crossterm::execute;
-    use crossterm::terminal::{
-        disable_raw_mode,
-        enable_raw_mode,
-        EnterAlternateScreen,
-        LeaveAlternateScreen,
-    };
     enable_raw_mode()?;
     let _ = execute!(std::io::stdout(), EnterAlternateScreen, disable_raw_mode());
     println!("\x1B[2J\x1B[1;1H"); // clear screen and move cursor to top left
