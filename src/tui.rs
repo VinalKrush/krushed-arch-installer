@@ -30,7 +30,7 @@ pub fn new_tui_text(msg: String) -> Result<(), io::Error> {
     Ok(())
 }
 
-pub fn clear_terminal() -> io::Result<()> {
+pub fn clear_terminal() {
     let backend = CrosstermBackend::new(stdout());
     let mut terminal = Terminal::new(backend)?;
     terminal.clear()?;
