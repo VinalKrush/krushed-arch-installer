@@ -1,4 +1,3 @@
-use crate::main::{ run_command, chroot_command };
 use tui::{ new_tui_text, clear_terminal };
 
 use ratatui::{

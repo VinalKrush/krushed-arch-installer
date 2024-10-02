@@ -1,5 +1,4 @@
-use crate::main::{ run_command, chroot_command };
-use tui::{ new_tui_text, clear_terminal };
+use crate::tui::{ new_tui_text, clear_terminal };
 
 use ratatui::{
     buffer::Buffer,
@@ -21,18 +20,18 @@ pub enum InstallUcode {
     AMD,
 }
 
-// fn run_command(command: &str) {
-//     use std::process::Command;
-//     let output = Command::new("sh")
-//         .arg("-c")
-//         .arg(command)
-//         .output()
-//         .expect("Failed to execute command");
+fn run_command(command: &str) {
+    use std::process::Command;
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg(command)
+        .output()
+        .expect("Failed to execute command");
 
-//     if !output.status.success() {
-//         println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
-//     }
-// }
+    if !output.status.success() {
+        println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
+    }
+}
 
 pub fn install_ucode(ucode: InstallUcode) {
     match ucode {

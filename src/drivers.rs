@@ -1,5 +1,4 @@
-use crate::main::{ run_command, chroot_command };
-use tui::{ new_tui_text, clear_terminal };
+use crate::tui::{ new_tui_text, clear_terminal };
 
 use ratatui::{
     buffer::Buffer,
@@ -24,31 +23,31 @@ pub enum InstallDriver {
     NONE,
 }
 
-// fn run_command(command: &str) {
-//     use std::process::Command;
-//     let output = Command::new("sh")
-//         .arg("-c")
-//         .arg(command)
-//         .output()
-//         .expect("Failed to execute command");
+fn run_command(command: &str) {
+    use std::process::Command;
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg(command)
+        .output()
+        .expect("Failed to execute command");
 
-//     if !output.status.success() {
-//         println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
-//     }
-// }
+    if !output.status.success() {
+        println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
+    }
+}
 
-// fn chroot_command(_command: &str) {
-//     use std::process::Command;
-//     let output = Command::new("sh")
-//         .arg("-c")
-//         .arg(format!("arch-chroot /mnt {}", _command))
-//         .output()
-//         .expect("Failed to execute chroot command");
+fn chroot_command(_command: &str) {
+    use std::process::Command;
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg(format!("arch-chroot /mnt {}", _command))
+        .output()
+        .expect("Failed to execute chroot command");
 
-//     if !output.status.success() {
-//         println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
-//     }
-// }
+    if !output.status.success() {
+        println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
+    }
+}
 
 pub fn install_driver(drivers: InstallDriver) {
     match drivers {
