@@ -13,17 +13,13 @@ use ratatui::{
 };
 use std::io::{ self, stdout };
 
-pub fn new_tui_text(msg: Sting) -> Result<(), io::Error> {
+pub fn new_tui_text(msg: String) -> Result<(), io::Error> {
     let backend = CrosstermBackend::new(stdout());
     let mut terminal = Terminal::new(backend)?;
     clear_terminal();
 
     let paragraph = Paragraph::new(msg)
-        .block(
-            Block::bordered()
-                .title("Krushed Arch Linux Installer")
-                .style(Style::default().title_alignment(Alignment::Center))
-        )
+        .block(Block::bordered().title("Krushed Arch Linux Installer").style(Style::default()))
         .bold();
 
     terminal.draw(|frame| {

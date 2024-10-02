@@ -142,6 +142,7 @@ pub enum InstallProfile {
 }
 
 fn run_command(command: &str) {
+    use std::process::Command;
     let output = Command::new("sh")
         .arg("-c")
         .arg(command)

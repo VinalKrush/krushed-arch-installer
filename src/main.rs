@@ -210,7 +210,7 @@ fn host_name(state: &mut InstallerState) -> Result<(), io::Error> {
     new_tui_text(text);
 
     let host_name = Input::new().interact().unwrap();
-    terminal.clear()?;
+    clear_terminal();
 
     state.hostname = host_name;
     swap_creation(state)?;
@@ -281,16 +281,15 @@ fn install_confirm(state: &mut InstallerState) -> Result<(), io::Error> {
 fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
     let backend = CrosstermBackend::new(stdout());
     let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
-
+    clear_terminal();
     // Ask If Want To Make A New User?
 
     // Ask for username
-    terminal.clear()?;
+    clear_terminal();
     let username = Input::new().with_prompt("Enter Username:").interact().unwrap();
 
     // Ask for password
-    terminal.clear()?;
+    clear_terminal();
     let password = Password::new()
         .with_prompt("Enter Password:")
         .with_confirmation("Confirm Password", "Passwords Do Not Match.")
@@ -298,7 +297,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
         .unwrap();
 
     // If user should be an admin
-    terminal.clear()?;
+    clear_terminal();
     let user_admin = Confirm::new()
         .with_prompt(format!("Should {} be an admin?", username).as_str())
         .default(true)
@@ -359,7 +358,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
     other_installers(state)?;
 
     // Ask if they want to make another user
-    terminal.clear()?;
+    clear_terminal();
     let another_user = Confirm::new()
         .with_prompt("Would you like to make another user?")
         .default(false)
@@ -471,7 +470,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
 
     if state.swap_size > 0 {
         println!("Creating Swap File...");
-        swap_size_mb = state.swap.size * 1024;
+        let swap_size_mb = state.swap_size * 1024;
         chroot_command(
             format!("dd if=/dev/zero of=/swapfile bs={0} count=1048576", swap_size_mb).as_str()
         );
@@ -518,7 +517,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         .unwrap();
 
     if !restart_confirmation {
-        terminal.clear()?;
+        clear_terminal();
         println!("Krushed Arch Installer Complete!");
         return Ok(());
     } else {
