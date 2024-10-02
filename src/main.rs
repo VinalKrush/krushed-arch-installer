@@ -18,13 +18,27 @@ mod profiles;
 mod ucode;
 mod drivers;
 mod bell;
+use tui;
 
+//use dialoguer::console::Style;
+use tui::new_text;
 use profiles::{ InstallProfile, install_profile };
 use ucode::{ InstallUcode, install_ucode };
 use drivers::{ InstallDriver, install_driver };
 use bell::ring_bell;
-use ratatui::{ backend::CrosstermBackend, Terminal };
-use ratatui::widgets::{ List, ListItem, Block, Borders };
+use ratatui::{
+    buffer::Buffer,
+    backend::CrosstermBackend,
+    prelude::Alignment,
+    crossterm::event::{ self, Event, KeyCode, KeyEventKind },
+    layout::{ Constraint, Layout, Rect },
+    style::{ Color, Stylize, Style },
+    text::{ Line, Masked, Span },
+    widgets::{ Block, Paragraph, Widget, Wrap },
+    Frame,
+    DefaultTerminal,
+    Terminal,
+};
 use dialoguer::{ Password, Input, Confirm };
 use std::io::{ self, stdout };
 struct InstallerState {
@@ -33,9 +47,10 @@ struct InstallerState {
     selected_driver: i32,
     root_pass: String,
     hostname: String,
+    swap_size: i32,
 }
 
-fn run_command(command: &str) {
+pub fn run_command(command: &str) {
     use std::process::Command;
     let output = Command::new("sh")
         .arg("-c")
@@ -48,7 +63,7 @@ fn run_command(command: &str) {
     }
 }
 
-fn chroot_command(_command: &str) {
+pub fn chroot_command(_command: &str) {
     use std::process::Command;
     let output = Command::new("sh")
         .arg("-c")
@@ -70,6 +85,7 @@ fn main() -> Result<(), io::Error> {
         selected_driver: 0,
         root_pass: "".to_string(),
         hostname: "".to_string(),
+        swap_size: 4,
     };
     terminal.clear()?;
 
@@ -260,6 +276,18 @@ fn host_name(state: &mut InstallerState) -> Result<(), io::Error> {
     state.hostname = host_na;
     install_confirm(state)?;
 
+    Ok(())
+}
+
+fn swap_creation(state: &mut InstallerState) -> Result<(), io::Error> {
+    let backend = CrosstermBackend::new(stdout());
+    let mut terminal = Terminal::new(backend)?;
+    terminal.clear()?;
+    let make_swap_msg = vec![
+        ListItem::new("Would You Like To Create A Swap File? (Y/n)").style(
+            Style::new().green().underlined()
+        )
+    ];
     Ok(())
 }
 

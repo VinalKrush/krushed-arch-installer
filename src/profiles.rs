@@ -118,7 +118,23 @@ Gaming (Full KDE Desktop Gaming Environment With Preinstalled Wine-Staging And O
     jre21-openjdk
 */
 
-use std::process::Command;
+use main::run_command;
+use main::chroot_command;
+
+use ratatui::{
+    buffer::Buffer,
+    backend::CrosstermBackend,
+    prelude::Alignment,
+    crossterm::event::{ self, Event, KeyCode, KeyEventKind },
+    layout::{ Constraint, Layout, Rect, Position },
+    style::{ Color, Modifier, Stylize, Style },
+    text::{ Line, Masked, Span },
+    widgets::{ Block, Paragraph, Widget, Wrap, List, ListItem },
+    Frame,
+    DefaultTerminal,
+    Terminal,
+};
+use std::io::{ self, stdout };
 pub enum InstallProfile {
     Base,
     Minimal,
@@ -127,29 +143,29 @@ pub enum InstallProfile {
     Gaming,
 }
 
-fn run_command(command: &str) {
-    let output = Command::new("sh")
-        .arg("-c")
-        .arg(command)
-        .output()
-        .expect("Failed to execute command");
+// fn run_command(command: &str) {
+//     let output = Command::new("sh")
+//         .arg("-c")
+//         .arg(command)
+//         .output()
+//         .expect("Failed to execute command");
 
-    if !output.status.success() {
-        println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
-    }
-}
+//     if !output.status.success() {
+//         println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
+//     }
+// }
 
-fn chroot_command(_command: &str) {
-    let output = Command::new("sh")
-        .arg("-c")
-        .arg(format!("arch-chroot /mnt {}", _command))
-        .output()
-        .expect("Failed to execute chroot command");
+// fn chroot_command(_command: &str) {
+//     let output = Command::new("sh")
+//         .arg("-c")
+//         .arg(format!("arch-chroot /mnt {}", _command))
+//         .output()
+//         .expect("Failed to execute chroot command");
 
-    if !output.status.success() {
-        println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
-    }
-}
+//     if !output.status.success() {
+//         println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
+//     }
+// }
 
 pub fn install_profile(profile: InstallProfile) {
     match profile {

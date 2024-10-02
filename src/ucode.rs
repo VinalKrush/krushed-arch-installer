@@ -1,20 +1,38 @@
+use main::run_command;
+use main::chroot_command;
+
+use ratatui::{
+    buffer::Buffer,
+    backend::CrosstermBackend,
+    prelude::Alignment,
+    crossterm::event::{ self, Event, KeyCode, KeyEventKind },
+    layout::{ Constraint, Layout, Rect, Position },
+    style::{ Color, Modifier, Stylize, Style },
+    text::{ Line, Masked, Span },
+    widgets::{ Block, Paragraph, Widget, Wrap, List, ListItem },
+    Frame,
+    DefaultTerminal,
+    Terminal,
+};
+use std::io::{ self, stdout };
+
 pub enum InstallUcode {
     Intel,
     AMD,
 }
 
-fn run_command(command: &str) {
-    use std::process::Command;
-    let output = Command::new("sh")
-        .arg("-c")
-        .arg(command)
-        .output()
-        .expect("Failed to execute command");
+// fn run_command(command: &str) {
+//     use std::process::Command;
+//     let output = Command::new("sh")
+//         .arg("-c")
+//         .arg(command)
+//         .output()
+//         .expect("Failed to execute command");
 
-    if !output.status.success() {
-        println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
-    }
-}
+//     if !output.status.success() {
+//         println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
+//     }
+// }
 
 pub fn install_ucode(ucode: InstallUcode) {
     match ucode {
