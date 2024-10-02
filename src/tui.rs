@@ -20,6 +20,7 @@ use crossterm::terminal::{
     EnterAlternateScreen,
     LeaveAlternateScreen,
 };
+use crossterm::{ Command, execute };
 
 pub fn new_tui_text(msg: String) -> Result<(), io::Error> {
     let backend = CrosstermBackend::new(stdout());
