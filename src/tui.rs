@@ -1,7 +1,6 @@
-mod main;
-
 use main::run_command;
 use main::chroot_command;
+use tui::{ new_tui_text, clear_terminal };
 
 use ratatui::{
     buffer::Buffer,
@@ -10,7 +9,7 @@ use ratatui::{
     crossterm::event::{ self, Event, KeyCode, KeyEventKind },
     layout::{ Constraint, Layout, Rect, Position },
     style::{ Color, Modifier, Stylize, Style },
-    text::{ Line, Masked, Span },
+    text::{ Line, Masked, Span, Text },
     widgets::{ Block, Paragraph, Widget, Wrap, List, ListItem },
     Frame,
     DefaultTerminal,
@@ -18,20 +17,30 @@ use ratatui::{
 };
 use std::io::{ self, stdout };
 
-pub fn new_text(msg: Sting, title: String, fg_color: String) -> Result<(), io::Error> {
+pub fn new_tui_text(msg: Sting) -> Result<(), io::Error> {
     let backend = CrosstermBackend::new(stdout());
     let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
+    clear_terminal();
 
     let paragraph = Paragraph::new(msg)
-        .block(Block::bordered().style(Style::default().fg(fg_color)))
-        .bold()
-        .centered();
+        .block(
+            Block::bordered()
+                .title("Krushed Arch Linux Installer")
+                .style(Style::default().title_alignment(Alignment::Center))
+        )
+        .bold();
 
     terminal.draw(|frame| {
         let size = frame.area();
         frame.render_widget(paragraph, size);
     })?;
 
+    Ok(())
+}
+
+pub fn clear_terminal() -> io::Result<(), io::Error> {
+    let backend = CrosstermBackend::new(stdout());
+    let mut terminal = Terminal::new(backend)?;
+    terminal.clear()?;
     Ok(())
 }

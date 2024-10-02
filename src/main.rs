@@ -18,10 +18,9 @@ mod profiles;
 mod ucode;
 mod drivers;
 mod bell;
-use tui;
+mod tui;
 
-//use dialoguer::console::Style;
-use tui::new_text;
+use tui::{ new_tui_text, clear_terminal };
 use profiles::{ InstallProfile, install_profile };
 use ucode::{ InstallUcode, install_ucode };
 use drivers::{ InstallDriver, install_driver };
@@ -31,16 +30,16 @@ use ratatui::{
     backend::CrosstermBackend,
     prelude::Alignment,
     crossterm::event::{ self, Event, KeyCode, KeyEventKind },
-    layout::{ Constraint, Layout, Rect },
-    style::{ Color, Stylize, Style },
-    text::{ Line, Masked, Span },
-    widgets::{ Block, Paragraph, Widget, Wrap },
+    layout::{ Constraint, Layout, Rect, Position },
+    style::{ Color, Modifier, Stylize, Style },
+    text::{ Line, Masked, Span, Text },
+    widgets::{ Block, Paragraph, Widget, Wrap, List, ListItem },
     Frame,
     DefaultTerminal,
     Terminal,
 };
 use dialoguer::{ Password, Input, Confirm };
-use std::io::{ self, stdout };
+use std::{ io, self, stdout, thread::sleep, time::Duration };
 struct InstallerState {
     selected_profile: i32,
     selected_ucode: i32,
@@ -50,35 +49,7 @@ struct InstallerState {
     swap_size: i32,
 }
 
-pub fn run_command(command: &str) {
-    use std::process::Command;
-    let output = Command::new("sh")
-        .arg("-c")
-        .arg(command)
-        .output()
-        .expect("Failed to execute command");
-
-    if !output.status.success() {
-        println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
-    }
-}
-
-pub fn chroot_command(_command: &str) {
-    use std::process::Command;
-    let output = Command::new("sh")
-        .arg("-c")
-        .arg(format!("arch-chroot /mnt {}", _command))
-        .output()
-        .expect("Failed to execute chroot command");
-
-    if !output.status.success() {
-        println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
-    }
-}
-
 fn main() -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
     let mut state = InstallerState {
         selected_profile: 0,
         selected_ucode: 0,
@@ -87,20 +58,26 @@ fn main() -> Result<(), io::Error> {
         hostname: "".to_string(),
         swap_size: 4,
     };
-    terminal.clear()?;
 
-    println!("Hello, Welcome To The Krushed Arch Linux Installer");
-    println!("");
-    println!("");
-    let driveconfirmation = Confirm::new()
-        .with_prompt("Have You Set Up Your Drives And Mounted Them To \"/mnt\"?")
-        .default(true)
-        .interact()
-        .unwrap();
+    let text = Text::from(
+        vec![
+            Line::from("Welcome To The Krushed Arch Linux Installer"),
+            Line::from(
+                "Please Ensure That You Have Mounted Your Partitions To \"/mnt\" Before Continuing This Install"
+            ),
+            Line::from(""),
+            Line::from("(PRESS ENTER TO CONTINUE)")
+        ]
+    )
+        .magenta()
+        .centered();
+    new_tui_text(text);
+
+    let driveconfirmation = Confirm::new().default(true).interact().unwrap();
 
     if !driveconfirmation {
-        terminal.clear()?;
-        println!("Cancelled Install... \nPlease set up your drives...");
+        let text = Text::from(vec![Line::from("Install Cancelled...")]).centered();
+        new_text(text);
         ring_bell();
         return Ok(());
     } else {
@@ -110,75 +87,60 @@ fn main() -> Result<(), io::Error> {
 }
 
 fn profile_selector(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
-
-    terminal.clear()?;
-    // PROFILE SELECT
-
-    let profile_choices_msg = vec![
-        ListItem::new("Please Type A Number To Select A Profile\n\n "),
-        ListItem::new("1. Base"),
-        ListItem::new("(Pretty Much Nothing Is Installed)"),
-        ListItem::new(""),
-        ListItem::new("2. Minimal"),
-        ListItem::new("(Best For Servers)"),
-        ListItem::new(""),
-        ListItem::new("3. Desktop"),
-        ListItem::new("(Minimal Desktop Env)"),
-        ListItem::new(""),
-        ListItem::new("4. Full Desktop"),
-        ListItem::new("(Has Apps Like VLC, GPARTED, LIBREOFFICE, and CODE.)"),
-        ListItem::new(""),
-        ListItem::new("5. Gaming"),
-        ListItem::new("(Pre Installed Wine Staging , Steam, Lutris, And Other Gaming Packages.)"),
-        ListItem::new("")
-    ];
-
-    let profile_list = List::new(profile_choices_msg).block(Block::default().borders(Borders::ALL));
-
-    terminal.draw(|frame| {
-        let size = frame.area();
-        frame.render_widget(profile_list, size);
-    })?;
-
+    let text = Text::from(
+        vec![
+            Line::from("Please Type A Number To Select A Profile"),
+            Line::from(""),
+            Line::from("1. Base"),
+            Line::from("(Basic Arch Linux Install)"),
+            Line::from(""),
+            Line::from("2. Minimal"),
+            Line::from("(Best For Servers)"),
+            Line::from(""),
+            Line::from("3. Desktop"),
+            Line::from("(Basic Desktop Install | KDE Only"),
+            Line::from(""),
+            Line::from("4. Full Desktop"),
+            Line::from("(Has Pre-Installed Apps Like Spotify, VLC, GParted, Libreoffice, Etc...)"),
+            Line::from(""),
+            Line::from("5. Gaming"),
+            Line::from(
+                "(Has Pre-Installed Gaming Dependencies Like Wine Staging, VKD3d, Steam, Lutris, And More)"
+            )
+        ]
+    )
+        .magenta()
+        .centered();
+    new_tui_text(text);
     let selected_profile = Input::<i32>::new().interact_text().unwrap();
-    terminal.clear()?;
 
     if selected_profile >= 1 && selected_profile <= 5 {
-        println!("{selected_profile}");
         state.selected_profile = selected_profile;
         ucode_selector(state)?;
 
         Ok(())
     } else {
-        println!("Invalid Profile Choice, Please Enter A Number Between 1 - 5");
+        clear_terminal();
+        println!("Invalid Choice.");
         ring_bell();
         return Ok(());
     }
 }
 
 fn ucode_selector(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
-
-    // UCODE SELECT
-    let ucode_choices_msg = vec![
-        ListItem::new("Please Type A Number To Select A CPU Platform\n\n "),
-        ListItem::new("1. INTEL"),
-        ListItem::new("2. AMD")
-    ];
-
-    let ucode_list = List::new(ucode_choices_msg).block(Block::default().borders(Borders::ALL));
-
-    terminal.draw(|frame| {
-        let size = frame.area();
-        frame.render_widget(ucode_list, size);
-    })?;
+    let text = Text::from(
+        vec![
+            Line::from("Please Type A Number To Select A CPU Platform"),
+            Line::from(""),
+            Line::from("1. INTEL"),
+            Line::from("2. AMD")
+        ]
+    )
+        .magenta()
+        .centered();
+    new_tui_text(text);
 
     let selected_ucode = Input::<i32>::new().interact_text().unwrap();
-    terminal.clear()?;
 
     if selected_ucode >= 1 && selected_ucode <= 2 {
         state.selected_ucode = selected_ucode;
@@ -186,68 +148,54 @@ fn ucode_selector(state: &mut InstallerState) -> Result<(), io::Error> {
 
         Ok(())
     } else {
-        println!("Invalid CPU Choice.");
+        clear_terminal();
+        println!("Invalid Choice.");
         ring_bell();
         return Ok(());
     }
 }
 
 fn driver_selector(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
-
-    // UCODE SELECT
-    let driver_choices_msg = vec![
-        ListItem::new("Please Type A Number To Select A GPU Driver\n\n "),
-        ListItem::new("1. AMD"),
-        ListItem::new("2. NVIDIA"),
-        ListItem::new("3. INTEL"),
-        ListItem::new("4. VMWARE"),
-        ListItem::new("5. No Driver")
-    ];
-
-    let driver_list = List::new(driver_choices_msg).block(Block::default().borders(Borders::ALL));
-
-    terminal.draw(|frame| {
-        let size = frame.area();
-        frame.render_widget(driver_list, size);
-    })?;
+    let text = Text::from(
+        vec![
+            Line::from("Please Type A Number To Select A GPU Driver"),
+            Line::from(""),
+            Line::from("1. AMD"),
+            Line::from("2. INTEL"),
+            Line::from("3. INTEL"),
+            Line::from("4. VMWARE"),
+            Line::from("5. No Driver")
+        ]
+    )
+        .magenta()
+        .centered();
+    new_tui_text(text);
 
     let selected_driver = Input::<i32>::new().interact_text().unwrap();
-    terminal.clear()?;
 
     if selected_driver >= 1 && selected_driver <= 5 {
         state.selected_driver = selected_driver;
         root_password(state)
-        // root_password(state)
     } else {
-        println!("Invalid Driver Choice.");
+        clear_terminal();
+        println!("Invalid Choice.");
         ring_bell();
         return Ok(());
     }
 }
 
 fn root_password(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
-
-    // UCODE SELECT
-    let root_choices_msg = vec![ListItem::new("Please Set A Root Password\n\n ")];
-
-    let root_list = List::new(root_choices_msg).block(Block::default().borders(Borders::ALL));
-
-    terminal.draw(|frame| {
-        let size = frame.area();
-        frame.render_widget(root_list, size);
-    })?;
+    let text = Text::from(
+        vec![Line::from("Please Set A Root Password"), Line::from("(Leave Empty To Disable Root)")]
+    )
+        .magenta()
+        .centered();
+    new_tui_text(text);
 
     let root_pass = Password::new()
         .with_confirmation("Confirm Password", "Passwords Do Not Match")
         .interact()
         .unwrap();
-    terminal.clear()?;
 
     state.root_pass = root_pass;
     host_name(state)?;
@@ -256,54 +204,70 @@ fn root_password(state: &mut InstallerState) -> Result<(), io::Error> {
 }
 
 fn host_name(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
+    let text = Text::from(vec![Line::from("Please Type Set A Hostname")])
+        .magenta()
+        .centered();
+    new_tui_text(text);
+
+    let host_name = Input::new().interact().unwrap();
     terminal.clear()?;
 
-    // UCODE SELECT
-    let host_name_msg = vec![ListItem::new("Please Type A Hostname\n\n ")];
-
-    let host_list = List::new(host_name_msg).block(Block::default().borders(Borders::ALL));
-
-    terminal.draw(|frame| {
-        let size = frame.area();
-        frame.render_widget(host_list, size);
-    })?;
-
-    let host_na = Input::new().interact().unwrap();
-    terminal.clear()?;
-
-    state.hostname = host_na;
-    install_confirm(state)?;
+    state.hostname = host_name;
+    swap_creation(state)?;
 
     Ok(())
 }
 
 fn swap_creation(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
-    let make_swap_msg = vec![
-        ListItem::new("Would You Like To Create A Swap File? (Y/n)").style(
-            Style::new().green().underlined()
+    let text = Text::from(
+        vec![Line::from("Would You Like To Create A Swap File?"), Line::from("(Y/n)")]
+    )
+        .magenta()
+        .centered();
+    new_tui_text(text);
+
+    let confirm = Confirm::new().default(true).interact().unwrap();
+
+    if confirm {
+        let text = Text::from(
+            vec![
+                Line::from("How Big Do You Want The Swap File?"),
+                Line::from(""),
+                Line::from("Example:"),
+                Line::from("8"),
+                Line::from("(This Would Be 8GB)")
+            ]
         )
-    ];
+            .magenta()
+            .centered();
+        new_tui_text(text);
+
+        let swap_size = Input::<i32>::new().interact_text().unwrap();
+
+        state.swap_size = swap_size;
+        install_confirm(state);
+    } else {
+        state.swap_size = -1;
+        install_confirm(state);
+    }
     Ok(())
 }
 
 fn install_confirm(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
+    let text = Text::from(
+        vec![
+            Line::from("Are You Sure You Want To Continue With This Install?"),
+            Line::from("(PRESS ENTER TO CONTINUE)")
+        ]
+    )
+        .magenta()
+        .centered();
+    new_tui_text(text);
 
-    let install_confirmation = Confirm::new()
-        .with_prompt("Are you sure you want to continue with this install?")
-        .default(true)
-        .interact()
-        .unwrap();
+    let install_confirmation = Confirm::new().default(true).interact().unwrap();
 
     if !install_confirmation {
-        terminal.clear()?;
+        clear_terminal();
         println!(" Install Cancelled...");
         ring_bell();
         return Ok(());
@@ -409,9 +373,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
 }
 
 fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
-    terminal.clear()?;
+    clear_terminal();
     let chosen_profile;
     let chosen_ucode;
     let chosen_driver;
@@ -443,6 +405,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         _ => {
             ring_bell();
             println!("A Weird Error Happened And I Didn't Remeber What Profile You Selected...");
+            return Ok(());
         }
     }
 
@@ -458,6 +421,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         _ => {
             ring_bell();
             println!("A Weird Error Happened And I Didn't Remeber What UCODE You Selected...");
+            sleep(Duration::from_secs("5"));
         }
     }
 
@@ -483,22 +447,17 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
             install_driver(chosen_driver);
         }
         _ => {
+            chosen_driver = InstallDriver::NONE;
+            install_driver(chosen_driver);
             ring_bell();
             println!("A Weird Error Happened And I Didn't Remeber What Driver You Selected...");
+            sleep(Duration::from_secs("5"));
         }
     }
-
-    terminal.clear()?;
-
-    println!("SETTING UP SYSTEM");
-    println!("");
-    println!("");
-    println!("");
-    println!("");
-    println!("");
-    println!("");
-    println!("");
+    println!("Generating fstab...");
+    run_command("genfstab -U /mnt >> /mnt/etc/fstab");
     chroot_command("ln -s /usr/bin/vim /usr/bin/vi");
+    clear_terminal();
 
     // Installing Grub So If Install Fails Beyond  This Point, You Can Still Boot Into The Install.
     println!("Setting Up Grub...");
@@ -509,6 +468,18 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         ).as_str()
     );
     chroot_command("grub-mkconfig -o /boot/grub/grub.cfg");
+
+    if state.swap_size > 0 {
+        println!("Creating Swap File...");
+        swap_size_mb = state.swap.size * 1024;
+        chroot_command(
+            format!("dd if=/dev/zero of=/swapfile bs={0} count=1048576", swap_size_mb).as_str()
+        );
+        chroot_command("chmod 600 /swapfile");
+        chroot_command("mkswap /swapfile");
+        chroot_command("swapon /swapfile");
+        chroot_command("echo '/swapfile swap swap defaults 0 0' >> /etc/fstab");
+    }
 
     println!("Setting Hostname...");
     //Using shell command because idk how to write to files in rust yet
@@ -521,9 +492,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     chroot_command("mkinitcpio -P");
 
     // User Creation
-    terminal.clear()?;
-    ring_bell();
-    ring_bell();
+    clear_terminal();
     ring_bell();
     let new_user_msg = Confirm::new()
         .with_prompt("Would You Like To Create A New User?")
@@ -539,7 +508,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
 
     chroot_command(format!("sudo chpasswd <<< \"root:{0}\"", state.root_pass).as_str());
 
-    terminal.clear()?;
+    clear_terminal();
 
     println!("KRUSHED ARCH INSTALLER IS NOW DONE");
     let restart_confirmation = Confirm::new()
@@ -557,4 +526,30 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     }
 
     Ok(())
+}
+
+pub fn run_command(command: &str) {
+    use std::process::Command;
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg(command)
+        .output()
+        .expect("Failed to execute command");
+
+    if !output.status.success() {
+        println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
+    }
+}
+
+pub fn chroot_command(_command: &str) {
+    use std::process::Command;
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg(format!("arch-chroot /mnt {}", _command))
+        .output()
+        .expect("Failed to execute chroot command");
+
+    if !output.status.success() {
+        println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
+    }
 }

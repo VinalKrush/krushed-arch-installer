@@ -120,6 +120,7 @@ Gaming (Full KDE Desktop Gaming Environment With Preinstalled Wine-Staging And O
 
 use main::run_command;
 use main::chroot_command;
+use tui::{ new_tui_text, clear_terminal };
 
 use ratatui::{
     buffer::Buffer,
@@ -128,7 +129,7 @@ use ratatui::{
     crossterm::event::{ self, Event, KeyCode, KeyEventKind },
     layout::{ Constraint, Layout, Rect, Position },
     style::{ Color, Modifier, Stylize, Style },
-    text::{ Line, Masked, Span },
+    text::{ Line, Masked, Span, Text },
     widgets::{ Block, Paragraph, Widget, Wrap, List, ListItem },
     Frame,
     DefaultTerminal,
@@ -170,64 +171,24 @@ pub enum InstallProfile {
 pub fn install_profile(profile: InstallProfile) {
     match profile {
         InstallProfile::Base => {
-            println!("INSTALLING BASE PROFILE");
-            println!("");
-            println!("(This May Take Long Depending On Your Internet Speed...)");
-            println!("");
-            println!("");
-            println!("");
-            println!("");
-            println!("");
             base_profile();
         }
         InstallProfile::Minimal => {
-            println!("INSTALLING MINIMAL PROFILE");
-            println!("");
-            println!("(This May Take Long Depending On Your Internet Speed...)");
-            println!("");
-            println!("");
-            println!("");
-            println!("");
-            println!("");
             base_profile();
             minimal_profile();
         }
         InstallProfile::Desktop => {
-            println!("INSTALLING DESKTOP PROFILE");
-            println!("");
-            println!("(This May Take Long Depending On Your Internet Speed...)");
-            println!("");
-            println!("");
-            println!("");
-            println!("");
-            println!("");
             base_profile();
             minimal_profile();
             desktop_profile();
         }
         InstallProfile::FullDesktop => {
-            println!("INSTALLING FULL DESKTOP PROFILE");
-            println!("");
-            println!("(This May Take Long Depending On Your Internet Speed...)");
-            println!("");
-            println!("");
-            println!("");
-            println!("");
-            println!("");
             base_profile();
             minimal_profile();
             desktop_profile();
             full_desktop_profile();
         }
         InstallProfile::Gaming => {
-            println!("INSTALLING GAMING PROFILE");
-            println!("");
-            println!("(This May Take Long Depending On Your Internet Speed...)");
-            println!("");
-            println!("");
-            println!("");
-            println!("");
-            println!("");
             base_profile();
             minimal_profile();
             desktop_profile();
@@ -239,7 +200,15 @@ pub fn install_profile(profile: InstallProfile) {
 
 fn base_profile() {
     //Base Install
-    println!("Downloading Base Packages...");
+    let text = Text::from(
+        vec![
+            Line::from("Downloading System Packages..."),
+            Line::from("This May Take Awhile Depending On Your Internet Connection...")
+        ]
+    )
+        .green()
+        .centered();
+    new_tui_text(text);
     run_command(
         "pacstrap -K -P /mnt base base-devel linux linux-firmware linux-headers grub efibootmgr openssh networkmanager vim git"
     );
@@ -248,7 +217,15 @@ fn base_profile() {
 
 fn minimal_profile() {
     //Minimal Install
-    println!("Downloading Minimal Packages...");
+    let text = Text::from(
+        vec![
+            Line::from("Downloading Basic Packages..."),
+            Line::from("This May Take Awhile Depending On Your Internet Connection...")
+        ]
+    )
+        .green()
+        .centered();
+    new_tui_text(text);
     run_command(
         "pacstrap -K -P /mnt os-prober fastfetch btop ly reflector ldns wget curl xclip unzip unrar btrfs-progs exfat-utils ntfs-3g"
     );
@@ -258,7 +235,15 @@ fn minimal_profile() {
 
 fn desktop_profile() {
     //Desktop Install
-    println!("Downloading Desktop Packages...");
+    let text = Text::from(
+        vec![
+            Line::from("Downloading KDE Packages..."),
+            Line::from("This May Take Awhile Depending On Your Internet Connection...")
+        ]
+    )
+        .green()
+        .centered();
+    new_tui_text(text);
     run_command(
         "pacstrap -K -P /mnt xorg wayland plasma firefox pipewire lib32-pipewire wireplumber pipewire-audio pipewire-alsa pipewire-pulse noto-fonts konsole dolphin"
     );
@@ -266,7 +251,15 @@ fn desktop_profile() {
 
 fn full_desktop_profile() {
     //Full Desktop Install
-    println!("Downloading What Some People May Consider Bloat Packages...");
+    let text = Text::from(
+        vec![
+            Line::from("Downloading Extra Packages..."),
+            Line::from("This May Take Awhile Depending On Your Internet Connection...")
+        ]
+    )
+        .green()
+        .centered();
+    new_tui_text(text);
     run_command(
         "pacstrap -K -P /mnt zsh noto-fonts-cjk noto-fonts-extra noto-fonts-emoji ttf-hack-nerd gparted gvfs gvfs-afc grub-customizer flatpak dpkg less qpwgraph gnome-calculator fzf fuse2 fuse3 alsa-utils ufw vlc libreoffice-fresh code kvantum bluez spotify-launcher"
     );
@@ -275,7 +268,15 @@ fn full_desktop_profile() {
 
 fn gaming_profile() {
     //Gaming Install
-    println!("Downloading Gaming Dependencies...");
+    let text = Text::from(
+        vec![
+            Line::from("Downloading Gaming Dependencies..."),
+            Line::from("This May Take Awhile Depending On Your Internet Connection...")
+        ]
+    )
+        .green()
+        .centered();
+    new_tui_text(text);
     run_command(
         "pacstrap -K -P /mnt steam discord lutris wine-staging giflib lib32-giflib gnutls lib32-gnutls v4l-utils lib32-v4l-utils libpulse lib32-libpulse alsa-plugins lib32-alsa-plugins alsa-lib lib32-alsa-lib sqlite lib32-sqlite libxcomposite lib32-libxcomposite ocl-icd lib32-ocl-icd libva lib32-libva gtk3 lib32-gtk3 gst-plugins-base-libs lib32-gst-plugins-base-libs vulkan-icd-loader lib32-vulkan-icd-loader sdl2 lib32-sdl2 jre-openjdk jre8-openjdk jre11-openjdk jre17-openjdk jre21-openjdk"
     );

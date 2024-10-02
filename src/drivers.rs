@@ -1,5 +1,6 @@
 use main::run_command;
 use main::chroot_command;
+use tui::{ new_tui_text, clear_terminal };
 
 use ratatui::{
     buffer::Buffer,
@@ -8,7 +9,7 @@ use ratatui::{
     crossterm::event::{ self, Event, KeyCode, KeyEventKind },
     layout::{ Constraint, Layout, Rect, Position },
     style::{ Color, Modifier, Stylize, Style },
-    text::{ Line, Masked, Span },
+    text::{ Line, Masked, Span, Text },
     widgets::{ Block, Paragraph, Widget, Wrap, List, ListItem },
     Frame,
     DefaultTerminal,
@@ -54,14 +55,30 @@ pub fn install_driver(drivers: InstallDriver) {
     match drivers {
         InstallDriver::AMD => {
             // AMD Drivers Install
-            println!("Downloading AMD Drivers...");
+            let text = Text::from(
+                vec![
+                    Line::from("Downloading AMD Drivers..."),
+                    Line::from("This May Take Awhile...")
+                ]
+            )
+                .red()
+                .centered();
+            new_tui_text(text);
             run_command(
                 "pacstrap -K -P /mnt mesa lib32-mesa xf86-video-amdgpu vulkan-radeon lib32-vulkan-radeon libva-mesa-driver lib32-libva-mesa-driver mesa-vdpau"
             );
         }
         InstallDriver::NVIDIA => {
             // NVIDIA Drivers Install
-            println!("Downloading NVIDIA Drivers...");
+            let text = Text::from(
+                vec![
+                    Line::from("Downloading NVIDIA Drivers..."),
+                    Line::from("This May Take Awhile...")
+                ]
+            )
+                .green()
+                .centered();
+            new_tui_text(text);
             run_command(
                 "pacstrap -K -P /mnt nvidia-dkms nvidia-utils lib32-nvidia-utils libva-mesa-driver mesa-vdpau libva-nvidia-driver"
             );
@@ -69,20 +86,44 @@ pub fn install_driver(drivers: InstallDriver) {
         }
         InstallDriver::INTEL => {
             // INTEL Drivers Install
-            println!("Downloanding INTEL Drivers...");
+            let text = Text::from(
+                vec![
+                    Line::from("Downloading INTEL Drivers..."),
+                    Line::from("This May Take Awhile...")
+                ]
+            )
+                .blue()
+                .centered();
+            new_tui_text(text);
             run_command(
                 "pacstrap -K -P /mnt mesa lib32-mesa xf86-video-intel vulkan-intel lib32-vulkan-intel intel-media-driver libva-intel-driver"
             );
         }
         InstallDriver::VMWARE => {
             // VMWARE Drivers Install
-            println!("Downloading VMWARE Drivers...");
+            let text = Text::from(
+                vec![
+                    Line::from("Downloading VMWARE Drivers..."),
+                    Line::from("This May Take Awhile...")
+                ]
+            )
+                .light_yellow()
+                .centered();
+            new_tui_text(text);
             run_command("pacstrap -K -P /mnt open-vm-tools net-tools devtools");
             chroot_command("systemctl enable vmtoolsd.service vmware-vmblock-fuse.service");
         }
         InstallDriver::NONE => {
             // No Drivers.
-            println!("No Display Drivers Selected.")
+            let text = Text::from(
+                vec![
+                    Line::from("NO GPU DRIVER SELECTED..."),
+                    Line::from("CONTINUING IN 5 SECONDS...")
+                ]
+            )
+                .red()
+                .centered();
+            new_tui_text(text);
         }
     }
 }
