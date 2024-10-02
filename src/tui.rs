@@ -1,3 +1,4 @@
+mod main;
 use main::run_command;
 use main::chroot_command;
 use tui::{ new_tui_text, clear_terminal };
