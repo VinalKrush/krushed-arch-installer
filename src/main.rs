@@ -479,8 +479,8 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         chroot_command("mkswap /swapfile");
         chroot_command("swapon /swapfile");
         let mut fstab_file = OpenOptions::new().write(true).append(true).open("/mnt/etc/fstab");
-        fstab_file.write_all("\n".as_bytes());
-        fstab_file.write_all("/swapfile swap swap defaults 0 0");
+        fstab_file.write("\n".as_bytes());
+        fstab_file.write("/swapfile swap swap defaults 0 0");
     }
 
     println!("Setting Hostname...");
@@ -491,7 +491,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         .append(true) // Append to the file instead of truncating
         .open("/mnt/etc/hostname")?;
 
-    hostname_file.write_all(state.hostname.as_bytes())?;
+    hostname_file.write(state.hostname.as_bytes())?;
 
     println!("Generating Locale...");
     chroot_command("locale-gen");
