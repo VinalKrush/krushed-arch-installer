@@ -330,7 +330,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
     fn other_installers(state: &mut InstallerState) -> Result<(), io::Error> {
         if state.selected_profile >= 4 {
             // Install yay installer
-            run_command(format!("touch /mnt/usr/bin/install-yay").as_str());
+            chroot_command(format!("touch /mnt/usr/bin/install-yay").as_str());
             run_command(
                 format!(
                     "cp -r /etc/krushed/arch-installer/usr-config/install-yay.sh /usr/bin/install-yay"
@@ -339,7 +339,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
             chroot_command(format!("chmod +x /usr/bin/install-yay").as_str());
 
             // Install krushed zsh config installer
-            run_command(format!("touch /usr/bin/install-krushed-zsh").as_str());
+            chroot_command(format!("touch /usr/bin/install-krushed-zsh").as_str());
             run_command(
                 format!(
                     "cp -r /etc/krushed/arch-installer/usr-config/install-krushed-zsh.sh /usr/bin/install-krushed-zsh"
@@ -479,18 +479,15 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         chroot_command("mkswap /swapfile");
         chroot_command("swapon /swapfile");
         let mut fstab_file = OpenOptions::new().write(true).append(true).open("/mnt/etc/fstab");
-        fstab_file?.write_all("/swapfile swap swap defaults 0 0".as_bytes());
+        fstab_file?.write_all("# Swapfile\n/swapfile swap swap defaults 0 0".as_bytes());
     }
 
     println!("Setting Hostname...");
-    //Using shell command because idk how to write to files in rust yet
-
+    // Make hostname file
     run_command("touch /mnt/etc/hostname");
-    let mut hostname_file = OpenOptions::new()
-        .write(true)
-        .append(true) // Append to the file instead of truncating
-        .open("/mnt/etc/hostname")?;
-
+    // Open hostname file
+    let mut hostname_file = OpenOptions::new().write(true).append(true).open("/mnt/etc/hostname")?;
+    // Write to hostname file
     hostname_file.write_all(state.hostname.as_bytes())?;
 
     println!("Generating Locale...");

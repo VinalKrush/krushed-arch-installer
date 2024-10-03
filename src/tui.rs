@@ -52,5 +52,5 @@ pub fn run_command(command: &str) {
 }
 
 pub fn clear_terminal() {
-    run_command("clear");
+    println!("\x1B[2J\x1B[1;1H")
 }
