@@ -162,7 +162,7 @@ fn driver_selector(state: &mut InstallerState) -> Result<(), io::Error> {
             Line::from("Please Type A Number To Select A GPU Driver"),
             Line::from(""),
             Line::from("1. AMD"),
-            Line::from("2. INTEL"),
+            Line::from("2. NVIDIA"),
             Line::from("3. INTEL"),
             Line::from("4. VMWARE"),
             Line::from("5. No Driver")
@@ -210,7 +210,7 @@ fn host_name(state: &mut InstallerState) -> Result<(), io::Error> {
         .centered();
     let _ = new_tui_text(text.to_string());
 
-    let host_name = Input::new().interact().unwrap();
+    let host_name = Input::new().interact_text().unwrap();
     clear_terminal();
 
     state.hostname = host_name;
@@ -287,7 +287,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
 
     // Ask for username
     clear_terminal();
-    let username = Input::new().with_prompt("Enter Username:").interact().unwrap();
+    let username = Input::new().with_prompt("Enter Username:").interact_text().unwrap();
 
     // Ask for password
     clear_terminal();
@@ -300,7 +300,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
     // If user should be an admin
     clear_terminal();
     let user_admin = Confirm::new()
-        .with_prompt(format!("Should {} be an admin?", username).as_str())
+        .with_prompt(format!("Should {0} be an admin?", username).as_str())
         .default(true)
         .interact()
         .unwrap();
@@ -333,7 +333,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
             chroot_command(format!("touch /mnt/usr/bin/install-yay").as_str());
             run_command(
                 format!(
-                    "cp -r /etc/krushed/arch-installer/usr-config/install-yay.sh /usr/bin/install-yay"
+                    "cp -r /etc/krushed/arch-installer/usr-config/install-yay.sh /mnt/usr/bin/install-yay"
                 ).as_str()
             );
             chroot_command(format!("chmod +x /usr/bin/install-yay").as_str());
@@ -342,7 +342,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
             chroot_command(format!("touch /usr/bin/install-krushed-zsh").as_str());
             run_command(
                 format!(
-                    "cp -r /etc/krushed/arch-installer/usr-config/install-krushed-zsh.sh /usr/bin/install-krushed-zsh"
+                    "cp -r /etc/krushed/arch-installer/usr-config/install-krushed-zsh.sh /mnt/usr/bin/install-krushed-zsh"
                 ).as_str()
             );
             chroot_command(format!("chmod +x /usr/bin/install-krushed-zsh").as_str());
@@ -508,8 +508,9 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     if new_user_msg {
         user_creation(state);
     }
-
-    chroot_command("echo 'wheel ALL=(ALL:ALL) ALL' | sudo EDITOR='tee -a' visudo");
+    // Add Wheel Group To Sudoers File
+    let mut sudoers_file = OpenOptions::new().write(true).append(true).open("/mnt/etc/sudoers")?;
+    sudoers_file.write_all("\n%wheel ALL=(ALL:ALL) ALL".as_bytes());
 
     chroot_command(format!("sudo chpasswd <<< \"root:{0}\"", state.root_pass).as_str());
 
