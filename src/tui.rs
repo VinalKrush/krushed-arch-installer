@@ -27,7 +27,8 @@ pub fn new_tui_text(msg: String) -> Result<(), io::Error> {
     clear_terminal();
 
     let paragraph = Paragraph::new(msg)
-        .block(Block::bordered().title("Krushed Arch Linux Installer"))
+        .block(Block::bordered().title("Krushed Arch Linux Installer").magenta())
+        .alignment(Alignment::Center)
         .bold();
 
     terminal.draw(|frame| {

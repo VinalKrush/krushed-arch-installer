@@ -346,6 +346,13 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
                 ).as_str()
             );
             chroot_command(format!("chmod +x /usr/bin/install-krushed-zsh").as_str());
+
+            run_command(
+                format!(
+                    "cp -r /etc/krushed/arch-installer/usr-config/.zshrc /mnt/home/{0}/.zshrc",
+                    username
+                ).as_str()
+            );
         }
         Ok(())
     }
