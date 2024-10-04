@@ -226,10 +226,9 @@ fn minimal_profile() {
         .centered();
     let _ = new_tui_text(text.to_string());
     run_command(
-        "pacstrap -K -P /mnt os-prober fastfetch btop ly reflector ldns wget curl xclip unzip unrar btrfs-progs exfat-utils ntfs-3g"
+        "pacstrap -K -P /mnt os-prober fastfetch btop lemurs reflector ldns wget curl xclip unzip unrar btrfs-progs exfat-utils ntfs-3g"
     );
-    run_command("cp -r /etc/xdg/reflector/reflector.conf /mnt/etc/xdg/reflector/reflector.conf ");
-    chroot_command("systemctl enable ly.service reflector.service");
+    chroot_command("systemctl enable lemurs.service reflector.service");
 }
 
 fn desktop_profile() {
