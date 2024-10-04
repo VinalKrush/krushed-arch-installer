@@ -327,43 +327,38 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
         Ok(())
     }
 
-    fn other_installers(state: &mut InstallerState, username: String) -> Result<(), io::Error> {
-        if state.selected_profile >= 4 {
-            // Install yay installer
-            chroot_command(format!("touch /mnt/usr/bin/install-yay").as_str());
-            run_command(
-                format!(
-                    "cp -r /etc/krushed/arch-installer/usr-config/install-yay.sh /mnt/usr/bin/install-yay"
-                ).as_str()
-            );
-            chroot_command(format!("chmod +x /usr/bin/install-yay").as_str());
-
-            // Install krushed zsh config installer
-            chroot_command(format!("touch /usr/bin/install-krushed-zsh").as_str());
-            run_command(
-                format!(
-                    "cp -r /etc/krushed/arch-installer/usr-config/install-krushed-zsh.sh /mnt/usr/bin/install-krushed-zsh"
-                ).as_str()
-            );
-            chroot_command(format!("chmod +x /usr/bin/install-krushed-zsh").as_str());
-            chroot_command(format!("touch /home/{0}/.krushed-zshrc", username).as_str());
-            run_command(
-                format!(
-                    "cp -r -f /etc/krushed/arch-installer/usr-config/.zshrc /mnt/home/{0}/.krushed-zshrc",
-                    username
-                ).as_str()
-            );
-        }
-        Ok(())
-    }
-
     if user_admin {
         create_user(username, password, user_admin)?;
     } else {
         create_user_no_admin(username, password, user_admin)?;
     }
 
-    other_installers(state, username)?;
+    if state.selected_profile >= 4 {
+        // Install yay installer
+        chroot_command(format!("touch /mnt/usr/bin/install-yay").as_str());
+        run_command(
+            format!(
+                "cp -r /etc/krushed/arch-installer/usr-config/install-yay.sh /mnt/usr/bin/install-yay"
+            ).as_str()
+        );
+        chroot_command(format!("chmod +x /usr/bin/install-yay").as_str());
+
+        // Install krushed zsh config installer
+        chroot_command(format!("touch /usr/bin/install-krushed-zsh").as_str());
+        run_command(
+            format!(
+                "cp -r /etc/krushed/arch-installer/usr-config/install-krushed-zsh.sh /mnt/usr/bin/install-krushed-zsh"
+            ).as_str()
+        );
+        chroot_command(format!("chmod +x /usr/bin/install-krushed-zsh").as_str());
+        chroot_command(format!("touch /home/{0}/.krushed-zshrc", username).as_str());
+        run_command(
+            format!(
+                "cp -r -f /etc/krushed/arch-installer/usr-config/.zshrc /mnt/home/{0}/.krushed-zshrc",
+                username
+            ).as_str()
+        );
+    }
 
     // Ask if they want to make another user
     clear_terminal();
