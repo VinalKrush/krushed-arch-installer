@@ -8,15 +8,6 @@ fi
 
 clear
 
-echo "NOTE: CURRENTLY KNOWN BUGS:"
-echo "User Creation Does Not Change The Sudoers File So It Does Not Make Admin Accounts"
-echo ""
-echo "Current Workarounds:"
-echo "You Must Edit The Sudoers File With 'visudo' Post Installation."
-echo ""
-echo "PRESS ENTER TO CONTINUE"
-read
-
 # Compile your Rust program
 mkdir -p /etc/krushed/arch-installer/etc
 mkdir -p /etc/krushed/arch-installer/usr-config
