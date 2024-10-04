@@ -519,6 +519,11 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     clear_terminal();
 
     println!("KRUSHED ARCH INSTALLER IS NOW DONE");
+    if state.selected_profile >= 4 {
+        println!("");
+        println!("Tip, to quickly install yay and zsh");
+        println!("run the command \"install-yay\" & \"install-krushed-zsh\"");
+    }
     let restart_confirmation = Confirm::new()
         .with_prompt("DO YOU WANT TO RESTART?")
         .default(true)
