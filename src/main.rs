@@ -287,7 +287,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
 
     // Ask for username
     clear_terminal();
-    let username = Input::new().with_prompt("Enter Username:").interact_text().unwrap();
+    let username: String = Input::new().with_prompt("Enter Username:").interact_text().unwrap();
 
     // Ask for password
     clear_terminal();
