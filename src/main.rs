@@ -82,6 +82,8 @@ pub fn main() -> Result<(), io::Error> {
         ring_bell();
         return Ok(());
     } else {
+        run_command("pacman-key --init");
+        run_command("pacmam-key --populate");
         profile_selector(&mut state)?;
     }
     Ok(())
