@@ -60,6 +60,9 @@ pub fn main() -> Result<(), io::Error> {
         swap_size: 4,
     };
 
+    run_command("pacman-key --init");
+    run_command("pacmam-key --populate");
+
     let text = Text::from(
         vec![
             Line::from("Welcome To The Krushed Arch Linux Installer"),
@@ -82,8 +85,6 @@ pub fn main() -> Result<(), io::Error> {
         ring_bell();
         return Ok(());
     } else {
-        run_command("pacman-key --init");
-        run_command("pacmam-key --populate");
         profile_selector(&mut state)?;
     }
     Ok(())
