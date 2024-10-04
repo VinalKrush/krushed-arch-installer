@@ -338,7 +338,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
 
     if state.selected_profile >= 4 {
         // Install yay installer
-        chroot_command(format!("touch /mnt/usr/bin/install-yay").as_str());
+        chroot_command(format!("touch /usr/bin/install-yay").as_str());
         run_command(
             format!(
                 "cp -r /etc/krushed/arch-installer/usr-config/install-yay.sh /mnt/usr/bin/install-yay"
