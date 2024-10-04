@@ -328,9 +328,9 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
     }
 
     if user_admin {
-        create_user(username, password, user_admin)?;
+        create_user(username.clone(), password, user_admin)?;
     } else {
-        create_user_no_admin(username, password, user_admin)?;
+        create_user_no_admin(username.clone(), password, user_admin)?;
     }
 
     if state.selected_profile >= 4 {
@@ -351,11 +351,11 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
             ).as_str()
         );
         chroot_command(format!("chmod +x /usr/bin/install-krushed-zsh").as_str());
-        chroot_command(format!("touch /home/{0}/.krushed-zshrc", username).as_str());
+        chroot_command(format!("touch /home/{0}/.krushed-zshrc", username.clone()).as_str());
         run_command(
             format!(
                 "cp -r -f /etc/krushed/arch-installer/usr-config/.zshrc /mnt/home/{0}/.krushed-zshrc",
-                username
+                username.clone()
             ).as_str()
         );
     }
