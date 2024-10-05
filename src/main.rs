@@ -28,10 +28,9 @@ use bell::ring_bell;
 use ratatui::{
     style::{ Stylize },
     text::{ Line, Text },
-    Terminal
 };
 use dialoguer::{ Password, Input, Confirm };
-use std::{ io, self, io::stdout, thread::sleep, time::Duration, fs::OpenOptions, io::Write };
+use std::{ io, self, thread::sleep, time::Duration, fs::OpenOptions, io::Write };
 
 struct InstallerState {
     selected_profile: i32,
