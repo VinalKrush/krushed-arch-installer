@@ -1,19 +1,9 @@
-use crate::tui::{ new_tui_text, clear_terminal };
+use crate::tui::{ new_tui_text };
 
 use ratatui::{
-    buffer::Buffer,
-    backend::CrosstermBackend,
-    prelude::Alignment,
-    crossterm::event::{ self, Event, KeyCode, KeyEventKind },
-    layout::{ Constraint, Layout, Rect, Position },
-    style::{ Color, Modifier, Stylize, Style },
-    text::{ Line, Masked, Span, Text },
-    widgets::{ Block, Paragraph, Widget, Wrap, List, ListItem },
-    Frame,
-    DefaultTerminal,
-    Terminal,
+    style::{ Stylize },
+    text::{ Line, Text },
 };
-use std::io::{ self, stdout };
 
 pub enum InstallUcode {
     Intel,

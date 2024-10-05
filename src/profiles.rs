@@ -33,7 +33,7 @@ Minimal (Minimal Stuff Installed):
     ntfs-3g
 
 Desktop (Minimal KDE Desktop Environment):
-    GPU-Drivers
+    GPU-Driversgitlen
     xorg
     wayland
     plasma
@@ -117,22 +117,13 @@ Gaming (Full KDE Desktop Gaming Environment With Preinstalled Wine-Staging And O
     jre17-openjdk
     jre21-openjdk
 */
-use crate::tui::{ new_tui_text, clear_terminal };
+use crate::tui::{ new_tui_text };
 
 use ratatui::{
-    buffer::Buffer,
-    backend::CrosstermBackend,
-    prelude::Alignment,
-    crossterm::event::{ self, Event, KeyCode, KeyEventKind },
-    layout::{ Constraint, Layout, Rect, Position },
-    style::{ Color, Modifier, Stylize, Style },
-    text::{ Line, Masked, Span, Text },
-    widgets::{ Block, Paragraph, Widget, Wrap, List, ListItem },
-    Frame,
-    DefaultTerminal,
-    Terminal,
+    style::{ Stylize },
+    text::{ Line, Text },
 };
-use std::io::{ self, stdout };
+
 pub enum InstallProfile {
     Base,
     Minimal,

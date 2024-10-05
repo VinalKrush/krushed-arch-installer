@@ -26,17 +26,9 @@ use ucode::{ InstallUcode, install_ucode };
 use drivers::{ InstallDriver, install_driver };
 use bell::ring_bell;
 use ratatui::{
-    buffer::Buffer,
-    backend::CrosstermBackend,
-    prelude::Alignment,
-    crossterm::event::{ self, Event, KeyCode, KeyEventKind },
-    layout::{ Constraint, Layout, Rect, Position },
-    style::{ Color, Modifier, Stylize, Style },
-    text::{ Line, Masked, Span, Text },
-    widgets::{ Block, Paragraph, Widget, Wrap, List, ListItem },
-    Frame,
-    DefaultTerminal,
-    Terminal,
+    style::{ Stylize },
+    text::{ Line, Text },
+    Terminal
 };
 use dialoguer::{ Password, Input, Confirm };
 use std::{ io, self, io::stdout, thread::sleep, time::Duration, fs::OpenOptions, io::Write };
@@ -249,10 +241,10 @@ fn swap_creation(state: &mut InstallerState) -> Result<(), io::Error> {
         let swap_size = Input::<i32>::new().interact_text().unwrap();
 
         state.swap_size = swap_size;
-        install_confirm(state);
+        install_confirm(state)?;
     } else {
         state.swap_size = -1;
-        install_confirm(state);
+        install_confirm(state)?;
     }
     Ok(())
 }
@@ -283,13 +275,9 @@ fn install_confirm(state: &mut InstallerState) -> Result<(), io::Error> {
 }
 
 fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
-    let backend = CrosstermBackend::new(stdout());
-    let mut terminal = Terminal::new(backend)?;
     clear_terminal();
-    // Ask If Want To Make A New User?
 
     // Ask for username
-    clear_terminal();
     let username: String = Input::new().with_prompt("Enter Username:").interact_text().unwrap();
 
     // Ask for password
@@ -308,7 +296,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
         .interact()
         .unwrap();
 
-    fn create_user(username: String, password: String, user_admin: bool) -> Result<(), io::Error> {
+    fn create_user(username: String, password: String) -> Result<(), io::Error> {
         // Create user and add to wheel group and set password
         chroot_command(format!("mkdir /home/{0}", username).as_str());
         chroot_command(format!("useradd -m -G wheel {0}", username).as_str());
@@ -320,7 +308,6 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
     fn create_user_no_admin(
         username: String,
         password: String,
-        user_admin: bool
     ) -> Result<(), io::Error> {
         // Create user and set password
         chroot_command(format!("mkdir /home/{0}", username).as_str());
@@ -331,9 +318,9 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
     }
 
     if user_admin {
-        create_user(username.clone(), password, user_admin)?;
+        create_user(username.clone(), password)?;
     } else {
-        create_user_no_admin(username.clone(), password, user_admin)?;
+        create_user_no_admin(username.clone(), password)?;
     }
 
     if state.selected_profile >= 4 {
@@ -371,7 +358,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
         .interact()
         .unwrap();
     if another_user {
-        user_creation(state);
+        user_creation(state)?;
     }
 
     Ok(())
@@ -483,8 +470,8 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         chroot_command("chmod 600 /swapfile");
         chroot_command("mkswap /swapfile");
         chroot_command("swapon /swapfile");
-        let mut fstab_file = OpenOptions::new().write(true).append(true).open("/mnt/etc/fstab");
-        fstab_file?.write_all("# Swapfile\n/swapfile swap swap defaults 0 0".as_bytes());
+        let fstab_file = OpenOptions::new().write(true).append(true).open("/mnt/etc/fstab");
+        fstab_file?.write_all("# Swapfile\n/swapfile swap swap defaults 0 0".as_bytes())?;
     }
 
     println!("Setting Hostname...");
@@ -511,11 +498,11 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         .unwrap();
 
     if new_user_msg {
-        user_creation(state);
+        user_creation(state)?;
     }
     // Add Wheel Group To Sudoers File
     let mut sudoers_file = OpenOptions::new().write(true).append(true).open("/mnt/etc/sudoers")?;
-    sudoers_file.write_all("\n%wheel ALL=(ALL:ALL) ALL".as_bytes());
+    sudoers_file.write_all("\n%wheel ALL=(ALL:ALL) ALL".as_bytes())?;
 
     chroot_command(format!("sudo chpasswd <<< \"root:{0}\"", state.root_pass).as_str());
 

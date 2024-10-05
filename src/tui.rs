@@ -1,25 +1,11 @@
 use ratatui::{
-    buffer::Buffer,
     backend::CrosstermBackend,
     prelude::Alignment,
-    crossterm::event::{ self, Event, KeyCode, KeyEventKind },
-    layout::{ Constraint, Layout, Rect, Position },
-    style::{ Color, Modifier, Stylize, Style },
-    text::{ Line, Masked, Span, Text },
-    widgets::{ Block, Paragraph, Widget, Wrap, List, ListItem },
-    Frame,
-    DefaultTerminal,
+    style::{ Stylize },
+    widgets::{ Block, Paragraph },
     Terminal,
 };
 use std::io::{ self, stdout };
-
-use crossterm::execute;
-use crossterm::terminal::{
-    disable_raw_mode,
-    enable_raw_mode,
-    EnterAlternateScreen,
-    LeaveAlternateScreen,
-};
 
 pub fn new_tui_text(msg: String) -> Result<(), io::Error> {
     let backend = CrosstermBackend::new(stdout());
@@ -37,19 +23,6 @@ pub fn new_tui_text(msg: String) -> Result<(), io::Error> {
     })?;
 
     Ok(())
-}
-
-pub fn run_command(command: &str) {
-    use std::process::Command;
-    let output = Command::new("sh")
-        .arg("-c")
-        .arg(command)
-        .output()
-        .expect("Failed to execute command");
-
-    if !output.status.success() {
-        println!("Command failed: {}", String::from_utf8_lossy(&output.stderr));
-    }
 }
 
 pub fn clear_terminal() {
