@@ -448,7 +448,7 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     println!("Setting Up Grub...");
     chroot_command(
         format!(
-            "grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id={0}-Arch-Linux",
+            "grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id={0}-Arch-Linux",
             state.hostname
         ).as_str()
     );
