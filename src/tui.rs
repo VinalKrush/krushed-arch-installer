@@ -1,7 +1,7 @@
 use ratatui::{
     backend::CrosstermBackend,
     prelude::Alignment,
-    style::{ Stylize },
+    style::Stylize,
     widgets::{ Block, Paragraph },
     Terminal,
 };

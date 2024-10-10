@@ -25,10 +25,7 @@ use profiles::{ InstallProfile, install_profile };
 use ucode::{ InstallUcode, install_ucode };
 use drivers::{ InstallDriver, install_driver };
 use bell::ring_bell;
-use ratatui::{
-    style::{ Stylize },
-    text::{ Line, Text },
-};
+use ratatui::{ style::Stylize, text::{ Line, Text } };
 use dialoguer::{ Password, Input, Confirm };
 use std::{ io, self, thread::sleep, time::Duration, fs::OpenOptions, io::Write };
 
@@ -304,10 +301,7 @@ fn user_creation(state: &mut InstallerState) -> Result<(), io::Error> {
         Ok(())
     }
 
-    fn create_user_no_admin(
-        username: String,
-        password: String,
-    ) -> Result<(), io::Error> {
+    fn create_user_no_admin(username: String, password: String) -> Result<(), io::Error> {
         // Create user and set password
         chroot_command(format!("mkdir /home/{0}", username).as_str());
         chroot_command(format!("useradd -m {0}", username).as_str());
@@ -486,6 +480,13 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
 
     println!("Generating initramfs...");
     chroot_command("mkinitcpio -P");
+
+    if state.selected_profile > 3 {
+        println!("Setting Up Greeter...");
+        run_command(
+            "cp -r -f /etc/krushed/arch-installer/etc/greetd/config.toml /mnt/etc/greetd/config.toml"
+        );
+    }
 
     // User Creation
     clear_terminal();

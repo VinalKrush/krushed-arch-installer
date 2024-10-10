@@ -117,12 +117,9 @@ Gaming (Full KDE Desktop Gaming Environment With Preinstalled Wine-Staging And O
     jre17-openjdk
     jre21-openjdk
 */
-use crate::tui::{ new_tui_text };
+use crate::tui::new_tui_text;
 
-use ratatui::{
-    style::{ Stylize },
-    text::{ Line, Text },
-};
+use ratatui::{ style::Stylize, text::{ Line, Text } };
 
 pub enum InstallProfile {
     Base,
@@ -217,9 +214,8 @@ fn minimal_profile() {
         .centered();
     let _ = new_tui_text(text.to_string());
     run_command(
-        "pacstrap -K -P /mnt os-prober fastfetch btop ly reflector ldns wget curl xclip unzip unrar btrfs-progs exfat-utils ntfs-3g"
+        "pacstrap -K -P /mnt os-prober fastfetch btop reflector ldns wget curl xclip unzip unrar btrfs-progs exfat-utils ntfs-3g"
     );
-    chroot_command("systemctl enable ly.service reflector.service");
 }
 
 fn desktop_profile() {
@@ -234,8 +230,9 @@ fn desktop_profile() {
         .centered();
     let _ = new_tui_text(text.to_string());
     run_command(
-        "pacstrap -K -P /mnt xorg wayland plasma firefox pipewire lib32-pipewire wireplumber pipewire-audio pipewire-alsa pipewire-pulse noto-fonts konsole dolphin"
+        "pacstrap -K -P /mnt greetd greetd-tuigreet xorg wayland plasma firefox pipewire lib32-pipewire wireplumber pipewire-audio pipewire-alsa pipewire-pulse noto-fonts konsole dolphin"
     );
+    chroot_command("systemctl enable greetd.service");
 }
 
 fn full_desktop_profile() {
