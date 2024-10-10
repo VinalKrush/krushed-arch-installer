@@ -488,13 +488,6 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
         );
     }
 
-    if state.selected_profile >= 4 {
-        println!("Installing Krohnkite...");
-        chroot_command(
-            "git clone https://github.com/anametologin/krohnkite.git && cd  krohnkite && make install && cd .. && rm -rf krohnkite"
-        );
-    }
-
     // User Creation
     clear_terminal();
     ring_bell();
