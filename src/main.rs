@@ -90,7 +90,7 @@ fn profile_selector(state: &mut InstallerState) -> Result<(), io::Error> {
             Line::from("(Best For Servers)"),
             Line::from(""),
             Line::from("3. Desktop"),
-            Line::from("(Basic Desktop Install | KDE Only"),
+            Line::from("(Basic Desktop Install | KDE Only)"),
             Line::from(""),
             Line::from("4. Full Desktop"),
             Line::from("(Has Pre-Installed Apps Like Spotify, VLC, GParted, Libreoffice, Etc...)"),
