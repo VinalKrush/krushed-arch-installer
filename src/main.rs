@@ -481,10 +481,17 @@ fn start_install(state: &mut InstallerState) -> Result<(), io::Error> {
     println!("Generating initramfs...");
     chroot_command("mkinitcpio -P");
 
-    if state.selected_profile > 3 {
+    if state.selected_profile >= 3 {
         println!("Setting Up Greeter...");
         run_command(
             "cp -r -f /etc/krushed/arch-installer/etc/greetd/config.toml /mnt/etc/greetd/config.toml"
+        );
+    }
+
+    if state.selected_profile >= 4 {
+        println!("Installing Krohnkite...");
+        chroot_command(
+            "git clone https://github.com/anametologin/krohnkite.git && cd  krohnkite && make install && cd .. && rm -rf krohnkite"
         );
     }
 
