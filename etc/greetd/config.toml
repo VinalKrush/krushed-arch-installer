@@ -1,0 +1,6 @@
+[terminal]
+vt = 1
+
+[default_session]
+command = "tuigreet --theme border=red;text=white;prompt=red;time=red;action=red;button=red;container=black;input=yellow"
+user = "greeter"
